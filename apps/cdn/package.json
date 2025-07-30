@@ -1,0 +1,23 @@
+{
+  "name": "@libra/cdn",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "wrangler dev --port 3004 --persist-to=../web/.wrangler/state",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "typecheck": "tsc --noEmit",
+    "update": "bun update"
+  },
+  "dependencies": {
+    "@libra/auth": "*",
+    "@libra/db": "*",
+    "@libra/middleware": "*",
+    "@libra/typescript-config": "*",
+    "hono": "^4.8.10",
+    "@scalar/hono-api-reference": "^0.9.13",
+    "@hono/zod-openapi": "^0.19.10"
+  },
+  "devDependencies": {
+    "wrangler": "^4.26.1"
+  }
+}

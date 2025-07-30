@@ -1,0 +1,14 @@
+# @libra/dispatcher
+
+## 1.0.0
+
+### Major Changes
+
+- first release major version
+
+### Patch Changes
+
+- Updated dependencies
+  - @libra/db@1.0.0
+  - @libra/common@1.0.0
+  - @libra/middleware@1.0.0
