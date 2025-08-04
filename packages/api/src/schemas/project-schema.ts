@@ -18,7 +18,7 @@
  *
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 // Define limits locally to avoid module resolution issues
 const PROJECT_LIMITS = {
@@ -72,9 +72,8 @@ export const updateProjectConfigSchema = z.object({
 
 export const updateProjectVisibilitySchema = z.object({
   projectId: z.string().min(1, 'Project ID is required'),
-  visibility: z.enum(['public', 'private'], {
-    required_error: 'Visibility is required',
-    invalid_type_error: 'Visibility must be either public or private',
+  visibility: z.union([z.literal('public'), z.literal('private')], {
+    error: 'Visibility must be either public or private',
   }),
 })
 
@@ -116,7 +115,7 @@ export const updateHistoryWithScreenshotSchema = z.object({
   projectId: z.string().min(1),
   planId: z.string().min(1),
   screenshotKey: z.string().min(1),
-  previewUrl: z.string().url(),
+  previewUrl: z.url(),
 })
 
 export const deployProjectSchema = z.object({

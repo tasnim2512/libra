@@ -35,8 +35,8 @@ export default function Hero({ title, description, mockup, badge, buttons, class
 
   return (
     <Section className={cn('fade-bottom overflow-hidden pb-0 sm:pb-0 md:pb-0', className)}>
-      <div className='max-w-container mx-auto flex flex-col gap-4 sm:gap-6 md:gap-8 px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 md:pt-12 lg:pt-16'>
-        <div className='flex flex-col items-center gap-4 text-center sm:gap-5 md:gap-6'>
+      <div className='max-w-container mx-auto flex flex-col gap-4 sm:gap-6 md:gap-8 px-4 sm:px-6 lg:px-8 pt-2 sm:pt-4 md:pt-6 lg:pt-8'>
+        <div className='flex flex-col items-center gap-3 text-center sm:gap-4 md:gap-5'>
           <HeroHeader title={title} description={description} badge={badge} />
 
           <AppDescriptionForm

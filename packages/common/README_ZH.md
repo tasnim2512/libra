@@ -77,7 +77,7 @@ import {
 
 // 防抖函数
 const debouncedSearch = debounce((query: string) => {
-  console.log('Searching for:', query)
+
 }, 300)
 
 // 深度合并对象

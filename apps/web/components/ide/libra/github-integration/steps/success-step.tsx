@@ -118,14 +118,14 @@ export function SuccessStep({
               </Label>
               <p className="text-xs text-muted-foreground mt-1">
                 {FORCE_PUSH_DISABLED
-                  ? "Force push is temporarily disabled due to branch creation limitations"
+                  ? "Force push is enabled by default for this deployment"
                   : "Override existing files in the repository (use with caution)"
                 }
               </p>
             </div>
             <Switch
               id="force-push-toggle"
-              checked={forcePush}
+              checked={FORCE_PUSH_DISABLED ? true : forcePush}
               onCheckedChange={FORCE_PUSH_DISABLED ? () => {} : onForcePushChange}
               disabled={FORCE_PUSH_DISABLED}
               aria-label="Enable force push"

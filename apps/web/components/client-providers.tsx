@@ -64,6 +64,7 @@ function PostHogProvider({ children }: { children: React.ReactNode }) {
       advanced_disable_toolbar_metrics: true,
       opt_in_site_apps: true,
       autocapture: false,
+      capture_exceptions: true,
       loaded: (posthog) => {
         if (process.env.NODE_ENV === 'development') posthog.debug()
       },

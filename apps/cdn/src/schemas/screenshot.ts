@@ -18,29 +18,29 @@
  *
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 // Screenshot storage request schema
 export const screenshotRequestSchema = z.object({
-  dataUrl: z.string().min(1, { message: 'Screenshot data URL is required' }).describe('Base64 encoded screenshot data URL'),
-  planId: z.string().min(1, { message: 'Plan ID is required' }).describe('Plan ID for screenshot association'),
+  dataUrl: z.string().min(1, { error: 'Screenshot data URL is required' }).describe('Base64 encoded screenshot data URL'),
+  planId: z.string().min(1, { error: 'Plan ID is required' }).describe('Plan ID for screenshot association'),
   format: z.enum(['png', 'jpeg']).optional().default('png').describe('Screenshot format')
-})
+}).openapi('ScreenshotRequest')
 
 // Screenshot response schema
 export const screenshotResponseSchema = z.object({
   key: z.string().describe('The generated key for the stored screenshot'),
   planId: z.string().describe('The plan ID associated with the screenshot'),
   timestamp: z.number().describe('Timestamp when the screenshot was processed')
-})
+}).openapi('ScreenshotResponse')
 
 // Screenshot retrieval parameters schema
 export const screenshotRetrieveSchema = z.object({
   planId: z.string().min(1, 'Plan ID is required').describe('The plan ID to retrieve screenshot for')
-})
+}).openapi('ScreenshotRetrieveParams')
 
 // Error response schema
 export const errorResponseSchema = z.object({
   error: z.string().describe('Error type'),
   message: z.string().describe('Error message')
-})
+}).openapi('ScreenshotErrorResponse')

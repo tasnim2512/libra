@@ -22,6 +22,18 @@
 
 import { animate, motion, useMotionValue, useTransform } from 'motion/react'
 import { useEffect, useState } from 'react'
+import * as m from '@/paraglide/messages'
+
+// Default typewriter texts - using constants to avoid dynamic access warnings
+const DEFAULT_TYPEWRITER_TEXTS = [
+  m['ui.typewriter.text1'](),
+  m['ui.typewriter.text2'](),
+  m['ui.typewriter.text3'](),
+  m['ui.typewriter.text4'](),
+  m['ui.typewriter.text5'](),
+  m['ui.typewriter.text6'](),
+  m['ui.typewriter.text7']()
+]
 
 export interface ITypewriterProps {
   delay: number
@@ -62,16 +74,7 @@ export interface IRepeatedTextAnimationProps {
   texts: string[]
 }
 
-const defaultTexts = [
-  'quiz page with questions and answers',
-  'blog Article Details Page Layout',
-  'dashboard with a sidebar',
-  'ui like platform.openai.com....',
-  'button',
-  'aop that tracks non-standard split sleep cycles',
-  'transparent card to showcase achievements of a user',
-]
-function RepeatedTextAnimation({ delay, texts = defaultTexts }: IRepeatedTextAnimationProps) {
+function RepeatedTextAnimation({ delay, texts = DEFAULT_TYPEWRITER_TEXTS }: IRepeatedTextAnimationProps) {
   const textIndex = useMotionValue(0)
 
   const baseText = useTransform(textIndex, (latest) => texts[latest] || '')
@@ -106,18 +109,7 @@ function RepeatedTextAnimation({ delay, texts = defaultTexts }: IRepeatedTextAni
   return <motion.span className='inline'>{displayText}</motion.span>
 }
 
-const cursorVariants = {
-  blinking: {
-    opacity: [0, 0, 1, 1],
-    transition: {
-      duration: 1,
-      repeat: Number.POSITIVE_INFINITY,
-      repeatDelay: 0,
-      ease: 'linear',
-      times: [0, 0.5, 0.5, 1],
-    },
-  },
-}
+
 
 function BlinkingCursor() {
   return (

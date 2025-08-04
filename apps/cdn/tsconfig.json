@@ -9,6 +9,7 @@
   ],
   "exclude": [
     "public/inspect.js",
-    "public/inspect.src.js"
+    "public/inspect.src.js",
+    "../../packages/better-auth-stripe/**/*"
   ]
 }

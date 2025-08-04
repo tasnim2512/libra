@@ -21,7 +21,7 @@
 'use client'
 
 import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 // Import UI components
@@ -53,8 +53,8 @@ import { InviteFormProps, handleInviteMemberParams } from './types'
 
 // Invite member form validation schema
 const getInviteMemberSchema = () => z.object({
-  email: z.string().email({ message: m['dashboard.teams.inviteForm.emailInvalid']() }),
-  role: z.string({ required_error: m['dashboard.teams.inviteForm.roleRequired']() })
+  email: z.email({ error: m['dashboard.teams.inviteForm.emailInvalid']() }),
+  role: z.string({ error: m['dashboard.teams.inviteForm.roleRequired']() })
 })
 
 export function InviteForm({ onInvite, isLoading }: InviteFormProps) {

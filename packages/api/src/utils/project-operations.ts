@@ -28,6 +28,28 @@ import { terminateSandbox } from './container'
 import { restoreProjectQuotaOnDeletion } from '@libra/auth/utils/subscription-limits'
 import { deleteProjectWorker } from './cloudflare-workers'
 import { headers } from 'next/headers'
+import { hasPremiumMembership } from './membership-validation'
+
+/**
+ * Generate a random project name with length limit
+ * @param maxLength - Maximum length of the project name (default: 20)
+ * @returns Random project name
+ */
+export function generateRandomProjectName(maxLength = 20): string {
+  const adjectives = [
+    'Amazing', 'Brilliant', 'Creative', 'Dynamic', 'Epic', 'Fantastic',
+    'Great', 'Innovative', 'Magical', 'Outstanding', 'Perfect', 'Quick',
+    'Smart', 'Unique', 'Wonderful', 'Awesome', 'Cool', 'Fresh', 'Modern', 'Swift'
+  ]
+
+  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)]
+  const randomNumber = Math.floor(Math.random() * 999) + 1
+
+  const fullName = `${randomAdjective} Project ${randomNumber}`
+
+  // Truncate if exceeds max length
+  return fullName.length > maxLength ? fullName.substring(0, maxLength).trim() : fullName
+}
 
 /**
  * Project operation context for logging and error handling
@@ -50,11 +72,13 @@ export interface ProjectUpdateResult {
 
 /**
  * Project creation parameters
+ * Note: visibility parameter is ignored - project visibility is determined by user's subscription status
+ * Premium users default to private projects, free users default to public projects
  */
 export interface ProjectCreationParams {
   name?: string
   templateType?: string
-  visibility?: 'public' | 'private'
+  visibility?: 'public' | 'private' // Ignored - determined by subscription status
   initialMessage?: string
   attachment?: {
     key: string
@@ -190,7 +214,14 @@ export async function createProjectWithHistory(
   params: ProjectCreationParams
 ): Promise<any> {
   const { orgId, userId, operation } = context
-  const { name, templateType, visibility, initialMessage, attachment, planId } = params
+  const { name, templateType, initialMessage, attachment, planId } = params
+
+  // Check user's subscription status to determine project visibility
+  const isPremium = await hasPremiumMembership(orgId)
+
+  // Determine project visibility based on subscription status
+  // Premium users default to private projects, free users default to public projects
+  const projectVisibility: 'public' | 'private' = isPremium ? 'private' : 'public'
 
   log.project('info', `Project ${operation} started`, {
     orgId,
@@ -198,7 +229,8 @@ export async function createProjectWithHistory(
     operation,
     projectName: name,
     templateType,
-    visibility,
+    isPremium,
+    projectVisibility,
     hasInitialMessage: !!initialMessage,
     hasAttachment: !!attachment,
     planId,
@@ -211,9 +243,9 @@ export async function createProjectWithHistory(
   const [newProject] = await db
     .insert(project)
     .values({
-      name: name ?? 'My First Project',
+      name: name ?? generateRandomProjectName(30),
       templateType: templateType ?? 'default',
-      visibility: (visibility as 'public' | 'private') ?? 'private',
+      visibility: projectVisibility,
       initialMessage,
       messageHistory,
       userId,

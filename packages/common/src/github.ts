@@ -18,7 +18,12 @@
  *
  */
 
-import { z } from "zod";
+import { z } from "zod/v4";
+
+// Type definitions (placed before schemas for v4 compatibility)
+export type GithubNodeBase = z.infer<typeof githubNodeBaseSchema>;
+export type GitHubFileNode = z.infer<typeof githubFileNodeSchema>;
+export type GetFileContentInput = z.infer<typeof getFileContentSchema>;
 
 // Basic schema for GitHub file/directory structure
 export const githubNodeBaseSchema = z.object({
@@ -32,7 +37,7 @@ export const githubNodeBaseSchema = z.object({
 
 // Define recursive type to support directory hierarchy
 // In Zod 4, recursive types need to be defined differently
-export const githubFileNodeSchema: z.ZodType<any> = z.lazy(() => 
+export const githubFileNodeSchema: z.ZodType<any> = z.lazy(() =>
   githubNodeBaseSchema.extend({
     children: z.array(githubFileNodeSchema).optional(),
   })
@@ -42,9 +47,3 @@ export const githubFileNodeSchema: z.ZodType<any> = z.lazy(() =>
 export const getFileContentSchema = z.object({
   path: z.string().min(1, "File path cannot be empty"),
 });
-
-
-// Export type definitions
-export type GithubNodeBase = z.infer<typeof githubNodeBaseSchema>;
-export type GitHubFileNode = z.infer<typeof githubFileNodeSchema>;
-export type GetFileContentInput = z.infer<typeof getFileContentSchema>; 

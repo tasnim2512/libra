@@ -1,5 +1,7 @@
 FROM node:24.3.0-bookworm-slim
 
+USER root
+
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* \
     && npm install -g bun
 

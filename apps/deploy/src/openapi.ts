@@ -20,7 +20,7 @@
 
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { createRoute } from '@hono/zod-openapi'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { and, eq } from 'drizzle-orm'
 import { project, getDbForHono } from '@libra/db'
 import { sendToQueue } from './queue/producer'
@@ -51,14 +51,14 @@ const deploymentRequestSchema = z.object({
   customDomain: z.string().optional(),
   orgId: z.string().min(1, 'Organization ID is required'),
   userId: z.string().min(1, 'User ID is required'),
-})
+}).openapi('DeploymentRequest')
 
 const deploymentResponseSchema = z.object({
   success: z.boolean(),
   deploymentId: z.string().optional(),
   message: z.string().optional(),
   error: z.string().optional(),
-})
+}).openapi('DeploymentResponse')
 
 const healthResponseSchema = z.object({
   status: z.literal('healthy'),
@@ -70,14 +70,14 @@ const healthResponseSchema = z.object({
     database: z.string(),
     queue: z.string(),
   }),
-})
+}).openapi('HealthResponse')
 
 const errorResponseSchema = z.object({
   success: z.literal(false),
   error: z.string(),
   message: z.string(),
   timestamp: z.string(),
-})
+}).openapi('ErrorResponse')
 
 // Deploy route
 const deployRoute = createRoute({

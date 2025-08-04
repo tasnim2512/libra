@@ -13,11 +13,12 @@
     "playground": "Playground",
     "start_coding": "Start Building",
     "brand": "Libra AI",
-    "toggleNavigation": "Toggle navigation menu"
+    "toggleNavigation": "Toggle navigation menu",
+    "logo_description": "Landing page template built with React, Shadcn/ui and Tailwind that you can copy/paste into your project."
   },
   "hero": {
     "badge": "Built on Developer-Loved Tools",
-    "title": "Ideas to Apps",
+    "title": "Turn ideas into apps in",
     "subtitle": "Brings your app ideas to life with AI, and deploys them to your domain.",
     "cta_primary": "Start Free",
     "cta_secondary": "View on GitHub",
@@ -70,7 +71,9 @@
     "projectCreate": {
       "success": "Project {name} created successfully!",
       "limitExceeded": "Failed to create project, limit may be exceeded"
-    }
+    },
+    "minutes": "minutes",
+    "title_minutes": "minutes"
   },
   "features": {
     "title": "Powerful Features Developers Love",
@@ -421,6 +424,7 @@
           "description": "Monthly AI chat and generation usage",
           "paidDescription": "Paid plan AI chat and generation usage",
           "freeDescription": "Free plan AI chat and generation usage",
+          "hybridDescription": "AI message quota (Paid {paid} + Free {free})",
           "used": "Used",
           "remaining": "Remaining",
           "total": "Total",
@@ -440,6 +444,7 @@
           "description": "Total projects created",
           "paidDescription": "Total projects created under paid plan",
           "freeDescription": "Total projects created under free plan",
+          "hybridDescription": "Project quota (Paid {paid} + Free {free})",
           "used": "Used",
           "remaining": "Remaining",
           "total": "Total",
@@ -457,6 +462,11 @@
         "viewPlans": "View All Plans",
         "resourcesRunningOut": "Some resources are running out, upgrade your plan for more quota",
         "button": "Upgrade"
+      },
+      "manage": {
+        "title": "Manage Plan",
+        "button": "Manage Plan",
+        "processing": "Processing..."
       },
       "loadError": {
         "title": "Loading Failed",
@@ -894,6 +904,9 @@
       "github_cancelled": "Authentication was cancelled. You can try again anytime.",
       "retry": "Retry",
       "help_popup_blocked": "To enable popups: Click the popup blocker icon in your browser's address bar and select 'Always allow popups'.",
+      "unknown_error": "Unknown error",
+      "authentication_error": "Authentication Error",
+      "retry_github_auth": "Retry GitHub authentication",
       "or_continue": "Or continue with",
       "email_label": "Email",
       "email_placeholder": "nextify@libra.dev",
@@ -925,6 +938,15 @@
     }
   },
   "ui": {
+    "typewriter": {
+      "text1": "quiz page with questions and answers",
+      "text2": "blog Article Details Page Layout",
+      "text3": "dashboard with a sidebar",
+      "text4": "ui like platform.openai.com....",
+      "text5": "button",
+      "text6": "app that tracks non-standard split sleep cycles",
+      "text7": "transparent card to showcase achievements of a user"
+    },
     "error": {
       "title": "Error",
       "description": "Something went wrong!",

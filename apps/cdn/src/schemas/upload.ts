@@ -18,26 +18,26 @@
  *
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 // Upload request schema
 export const uploadRequestSchema = z.object({
-  image: z.instanceof(File, { message: 'Image file is required' }),
+  image: z.instanceof(File, { error: 'Image file is required' }),
   width: z.string().optional().describe('Optional width for image resizing'),
   height: z.string().optional().describe('Optional height for image resizing'),
-  planId: z.string().min(1, { message: 'PlanId is required' }).describe('Plan ID for file replacement tracking')
-})
+  planId: z.string().min(1, { error: 'PlanId is required' }).describe('Plan ID for file replacement tracking')
+}).openapi('UploadRequest')
 
 // Upload response schema
 export const uploadResponseSchema = z.object({
   key: z.string().describe('The generated key for the uploaded image')
-})
+}).openapi('UploadResponse')
 
 // Error response schema
 export const errorResponseSchema = z.object({
   error: z.string().describe('Error type'),
   message: z.string().describe('Error message')
-})
+}).openapi('ErrorResponse')
 
 // Upload route types
 export type UploadRequest = z.infer<typeof uploadRequestSchema>

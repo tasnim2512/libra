@@ -20,7 +20,7 @@
 
 import { OpenAPIHono } from '@hono/zod-openapi'
 import { createRoute } from '@hono/zod-openapi'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { and, eq } from 'drizzle-orm'
 import { project, getDbForHono } from '@libra/db'
 import { submitScreenshotRequest } from '../queue/producer'
@@ -51,15 +51,15 @@ const screenshotRequestSchema = z.object({
   planId: z.string().min(1, 'Plan ID is required'),
   orgId: z.string().min(1, 'Organization ID is required'),
   userId: z.string().min(1, 'User ID is required'),
-  previewUrl: z.string().url('Valid preview URL is required'),
-})
+  previewUrl: z.string().url({ message: 'Valid preview URL is required' }),
+}).openapi('ScreenshotRequest')
 
 const screenshotResponseSchema = z.object({
   success: z.boolean(),
   screenshotId: z.string().optional(),
   message: z.string().optional(),
   error: z.string().optional(),
-})
+}).openapi('ScreenshotResponse')
 
 const statusResponseSchema = z.object({
   screenshotId: z.string(),
@@ -71,7 +71,7 @@ const statusResponseSchema = z.object({
   error: z.string().optional(),
   screenshotUrl: z.string().optional(),
   duration: z.number().optional(),
-})
+}).openapi('StatusResponse')
 
 const healthResponseSchema = z.object({
   status: z.string(),
@@ -88,14 +88,14 @@ const healthResponseSchema = z.object({
       backlog: z.number().optional(),
     }),
   }).optional(),
-})
+}).openapi('HealthResponse')
 
 const errorResponseSchema = z.object({
   success: z.literal(false),
   error: z.string(),
   message: z.string(),
   details: z.any().optional(),
-})
+}).openapi('ErrorResponse')
 
 // Screenshot route
 const screenshotRoute = createRoute({

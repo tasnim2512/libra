@@ -23,6 +23,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useTRPC } from '@/trpc/client'
 import { useMutation } from '@tanstack/react-query'
+import * as m from '@/paraglide/messages'
 
 export function useSubscription() {
   const router = useRouter()
@@ -40,11 +41,11 @@ export function useSubscription() {
         if (url) {
           router.push(url)
         } else {
-          toast.error('Failed to get portal URL')
+          toast.error(m["common.error"]())
         }
       },
-      onError: (err) => {
-        toast.error('Failed to access billing portal, Please try again.')
+      onError: () => {
+        toast.error(m["common.error"]())
       },
     })
   )
@@ -57,52 +58,114 @@ export function useSubscription() {
     
     try {
       await createPortalSessionMutation.mutateAsync({})
-    } catch (error) {
+    } catch {
+      // Error is handled by the mutation's onError callback
     }
   }
 
-  const handleUpgradeSubscription = async (planName: string, seats: number, isYearly: boolean) => {
+  const handleUpgradeSubscription = async (planName: string, _seats: number, isYearly: boolean) => {
     if (!isAuthenticated) {
       router.push('/login')
       return
     }
-    
+
     try {
       if (planName.toLowerCase().includes('free')) {
         router.push('/dashboard')
         return
       }
-      
+
       const referenceId = activeOrganization?.id
       if (!referenceId) {
-        toast.error('Failed to get organization info')
+        toast.error(m["common.error"]())
         return
       }
-      
+
+      console.log('Upgrading subscription with params:', {
+        plan: planName,
+        annual: isYearly,
+        referenceId: referenceId,
+        seats: 1
+      })
+
       const response = await authClient.subscription.upgrade({
         plan: planName,
         successUrl: "/dashboard",
         cancelUrl: "/#price",
         annual: isYearly,
         referenceId: referenceId,
-        seats: 1
+        seats: 1,
+        disableRedirect: false  // Ensure redirect is not disabled
       })
-      
+
       if (response) {
-        if ('url' in response && typeof response.url === 'string' && response.url) {
-          window.location.href = response.url
-        } else if ('id' in response) {
-          toast.success('Subscription created successfully')
-          router.push('/dashboard')
-        } else {
-          toast.success('Subscription request processed')
-          router.push('/dashboard')
+        console.log('Subscription upgrade response:', JSON.stringify(response, null, 2))
+
+        // Check if there is a data object and URL
+        if (response.data && typeof response.data === 'object') {
+          const data = response.data as Record<string, unknown>
+          const url = data.url
+
+          if (typeof url === 'string' && url) {
+            console.log('Found checkout URL in data.url:', url)
+            window.location.href = url
+            return
+          }
+
+          const possibleUrlKeys = ['checkout_url', 'session_url', 'redirect_url']
+          for (const key of possibleUrlKeys) {
+            if (key in data) {
+              const value = data[key]
+              if (typeof value === 'string' && value) {
+                console.log(`Found checkout URL in data.${key}:`, value)
+                window.location.href = value
+                return
+              }
+            }
+          }
+
+          if (data.id) {
+            console.log('Subscription created with ID:', data.id)
+            toast.success('Subscription created successfully!')
+            router.push('/dashboard')
+            return
+          }
         }
+
+        const possibleUrlKeys = ['url', 'checkout_url', 'session_url', 'redirect_url']
+        for (const key of possibleUrlKeys) {
+          if (key in response) {
+            const value = (response as Record<string, unknown>)[key]
+            if (typeof value === 'string' && value) {
+              console.log(`Found checkout URL in ${key}:`, value)
+              window.location.href = value
+              return
+            }
+          }
+        }
+
+        console.log('No valid checkout URL found in response')
+        toast.error(m["common.error"]())
       } else {
-        toast.error('Failed to create subscription, please try again later')
+        console.error('No response received from subscription upgrade')
+        toast.error(m["common.error"]())
       }
     } catch (error) {
-      toast.error('Subscription upgrade failed, please try again later')
+      console.error('Subscription upgrade error:', error)
+
+        if (error && typeof error === 'object') {
+        console.error('Error details:', JSON.stringify(error, null, 2))
+
+        if ('message' in error) {
+          console.error('Error message:', error.message)
+        }
+
+        if ('response' in error) {
+          console.error('API response error:', error.response)
+        }
+      }
+
+      toast.error(m["common.error"]())
     }
   }
 

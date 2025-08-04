@@ -26,7 +26,7 @@ import { templateConfigs } from '@libra/templates'
 import { Octokit } from '@octokit/rest'
 import { TRPCError } from '@trpc/server'
 import { and, eq } from 'drizzle-orm'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { githubRepoInfoSchema } from '../schemas/project-schema'
 import { createTRPCRouter, organizationProcedure } from '../trpc'
 import { getGitHubAuthToken } from '../utils/github-auth'
@@ -39,8 +39,9 @@ import {
   validateGitUrl,
 } from '../utils/project'
 
-// GitHub OAuth configuration
-const GITHUB_CLIENT_ID = process.env['GITHUB_APP_CLIENT_ID']
+// GitHub OAuth and GitHub App configurations are handled separately
+// OAuth App is used for personal user repository access
+// GitHub App is used for organization installations
 
 // Schemas for validation
 const GitHubUserSchema = z.object({
@@ -82,11 +83,13 @@ export const githubRouter = createTRPCRouter({
 
     log.github('info', 'Starting GitHub OAuth URL generation', context)
 
-    if (!GITHUB_CLIENT_ID) {
-      log.github('error', 'GitHub OAuth client ID not configured', context)
+    // Check if OAuth App credentials are configured
+    const GITHUB_OAUTH_CLIENT_ID = process.env['GITHUB_OAUTH_CLIENT_ID']
+    if (!GITHUB_OAUTH_CLIENT_ID) {
+      log.github('error', 'GitHub OAuth App client ID not configured', context)
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'GitHub OAuth client ID not configured',
+        message: 'GitHub OAuth App client ID not configured. Please set GITHUB_OAUTH_CLIENT_ID.',
       })
     }
 
@@ -110,7 +113,8 @@ export const githubRouter = createTRPCRouter({
 
       // GitHub OAuth authorization URL
       const oauthUrl = new URL('https://github.com/login/oauth/authorize')
-      oauthUrl.searchParams.set('client_id', GITHUB_CLIENT_ID)
+      oauthUrl.searchParams.set('client_id', GITHUB_OAUTH_CLIENT_ID)
+      oauthUrl.searchParams.set('redirect_uri', redirectUri) // Add redirect_uri parameter
       oauthUrl.searchParams.set('state', state)
       oauthUrl.searchParams.set('scope', 'user:email,repo') // Add required scopes
 
@@ -245,7 +249,8 @@ export const githubRouter = createTRPCRouter({
         where: eq(githubUserToken.organizationId, ctx.orgId),
       })
 
-      const requiresOAuth = installation.githubAccountType === 'User' && !userToken
+      // Personal users always require OAuth for repository access
+      const requiresOAuth = installation.githubAccountType === 'User'
 
       log.github('info', 'GitHub installation status retrieved', {
         ...context,
@@ -254,6 +259,10 @@ export const githubRouter = createTRPCRouter({
         accountLogin: installation.githubAccountLogin,
         requiresOAuth,
         hasUserToken: !!userToken,
+        userTokenId: userToken?.id,
+        userTokenGithubUserId: userToken?.githubUserId,
+        userTokenScope: userToken?.scope,
+        userTokenExpiresAt: userToken?.expiresAt,
       })
 
       return {
@@ -301,22 +310,42 @@ export const githubRouter = createTRPCRouter({
         log.github('info', 'GitHub auth token retrieved, verifying validity', {
           ...context,
           authType: authResult.type,
+          tokenPrefix: authResult.token.substring(0, 10),
+          expiresAt: authResult.expiresAt,
         })
 
         // Verify the token is still valid by making a test API call
-        const userResponse = await fetch('https://api.github.com/user', {
-          headers: {
-            Authorization: `Bearer ${authResult.token}`,
-            Accept: 'application/vnd.github.v3+json',
-          },
+        // Use appropriate authorization format and endpoint based on token type
+        const authHeader = authResult.type === 'installation'
+          ? `Bearer ${authResult.token}`  // Installation tokens use Bearer
+          : `token ${authResult.token}`   // User tokens use token
+
+        // For installation tokens, test with /app endpoint; for user tokens, test with /user endpoint
+        const testUrl = authResult.type === 'installation'
+          ? 'https://api.github.com/app'
+          : 'https://api.github.com/user'
+
+
+        const requestHeaders = {
+          Authorization: authHeader,
+          Accept: 'application/vnd.github.v3+json',
+          'User-Agent': 'Libra-AI/1.0',
+        }
+
+        const testResponse = await fetch(testUrl, {
+          headers: requestHeaders,
         })
 
-        if (!userResponse.ok) {
-          // Token is invalid
+        if (!testResponse.ok) {
+          // Token is invalid - get detailed error info
+          const errorText = await testResponse.text().catch(() => 'Unable to read error response')
+
           log.github('warn', 'GitHub token validation failed', {
             ...context,
-            status: userResponse.status,
+            status: testResponse.status,
+            statusText: testResponse.statusText,
             authType: authResult.type,
+            errorResponse: errorText.substring(0, 200), // First 200 chars of error
           })
           return {
             isConnected: false,
@@ -326,7 +355,7 @@ export const githubRouter = createTRPCRouter({
           }
         }
 
-        const githubUserData = await userResponse.json()
+        const githubUserData = await testResponse.json()
         const githubUser = GitHubUserSchema.parse(githubUserData)
 
         // Get connection details based on auth type
@@ -413,10 +442,16 @@ export const githubRouter = createTRPCRouter({
       const authResult = await getGitHubAuthToken(ctx.db, ctx.orgId)
 
       // Fetch user info from GitHub API using the valid token
+      // Use appropriate authorization format based on token type
+      const authHeader = authResult.type === 'installation'
+        ? `Bearer ${authResult.token}`  // Installation tokens use Bearer
+        : `token ${authResult.token}`   // User tokens use token
+
       const userResponse = await fetch('https://api.github.com/user', {
         headers: {
-          Authorization: `Bearer ${authResult.token}`,
+          Authorization: authHeader,
           Accept: 'application/vnd.github.v3+json',
+          'User-Agent': 'Libra-AI/1.0',
         },
       })
 
@@ -502,10 +537,16 @@ export const githubRouter = createTRPCRouter({
       }
 
       // Fetch repositories from GitHub API
+      // Use appropriate authorization format based on token type
+      const authHeader = authResult.type === 'installation'
+        ? `Bearer ${authResult.token}`  // Installation tokens use Bearer
+        : `token ${authResult.token}`   // User tokens use token
+
       const reposResponse = await fetch(apiUrl, {
         headers: {
-          Authorization: `Bearer ${authResult.token}`,
+          Authorization: authHeader,
           Accept: 'application/vnd.github.v3+json',
+          'User-Agent': 'Libra-AI/1.0',
         },
       })
 
@@ -657,12 +698,18 @@ export const githubRouter = createTRPCRouter({
           const [repoByIdData, repoByIdError] = await tryCatch(async () => {
             // Normal repository ID handling - use GitHub API to get repository info by ID
             // Note: Octokit doesn't have a direct method to get repository by ID, we need to use REST API
+            // Use appropriate authorization format based on token type
+            const authHeader = authResult.type === 'installation'
+              ? `Bearer ${authResult.token}`  // Installation tokens use Bearer
+              : `token ${authResult.token}`   // User tokens use token
+
             const response = await fetch(
               `https://api.github.com/repositories/${input.repositoryId}`,
               {
                 headers: {
-                  Authorization: `Bearer ${authResult.token}`,
+                  Authorization: authHeader,
                   Accept: 'application/vnd.github.v3+json',
+                  'User-Agent': 'Libra-AI/1.0',
                 },
               }
             )
@@ -1140,12 +1187,18 @@ export const githubRouter = createTRPCRouter({
         }
 
         // Create repository on GitHub
+        // Use appropriate authorization format based on token type
+        const authHeader = authResult.type === 'installation'
+          ? `Bearer ${authResult.token}`  // Installation tokens use Bearer
+          : `token ${authResult.token}`   // User tokens use token
+
         const createRepoResponse = await fetch(apiUrl, {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${authResult.token}`,
+            Authorization: authHeader,
             Accept: 'application/vnd.github.v3+json',
             'Content-Type': 'application/json',
+            'User-Agent': 'Libra-AI/1.0',
           },
           body: JSON.stringify({
             name: repoName,
@@ -1253,11 +1306,17 @@ export const githubRouter = createTRPCRouter({
 
           // Attempt to delete the repository (best effort cleanup)
           const [, deleteError] = await tryCatch(async () => {
+            // Use appropriate authorization format based on token type
+            const authHeader = authResult.type === 'installation'
+              ? `Bearer ${authResult.token}`  // Installation tokens use Bearer
+              : `token ${authResult.token}`   // User tokens use token
+
             await fetch(`https://api.github.com/repos/${parsedRepo.full_name}`, {
               method: 'DELETE',
               headers: {
-                Authorization: `Bearer ${authResult.token}`,
+                Authorization: authHeader,
                 Accept: 'application/vnd.github.v3+json',
+                'User-Agent': 'Libra-AI/1.0',
               },
             })
           })

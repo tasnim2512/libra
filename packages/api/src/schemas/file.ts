@@ -18,7 +18,7 @@
  *
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 // File entry schema
 export const fileEntrySchema = z.object({

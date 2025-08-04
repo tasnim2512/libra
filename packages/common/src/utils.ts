@@ -720,7 +720,7 @@ export function isDevelopment(): boolean {
  * Check if running in production environment
  */
 export function isProduction(): boolean {
-  return process.env.NODE_ENV === 'production' || process.env.ENVIRONMENT === 'production'
+  return (process.env.NODE_ENV as string) === 'production' || (process.env.ENVIRONMENT as string) === 'production'
 }
 
 /**

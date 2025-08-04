@@ -20,7 +20,7 @@
 
 import { log } from '@libra/common'
 import { HTTPException } from 'hono/http-exception'
-import { ZodError } from 'zod'
+import { ZodError } from 'zod/v4'
 import type { Context } from 'hono'
 
 type Bindings = {

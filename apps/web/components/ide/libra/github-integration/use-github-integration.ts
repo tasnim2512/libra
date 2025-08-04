@@ -253,21 +253,37 @@ export function useGitHubIntegration() {
 
               console.log('[GitHub Integration] New connection status:', newConnectionStatus)
 
-              if ((newConnectionStatus as any)?.isConnected) {
-                console.log('[GitHub Integration] Installation successful!')
-                toast.success(m['dashboard.integrations.github.messages.installation_success']())
+              // Check installation status instead of connection status
+              const newInstallationStatus = await queryClient.fetchQuery(
+                trpc.github.getInstallationStatus.queryOptions({})
+              )
 
-                // Invalidate all GitHub-related queries to refresh data
-                await queryClient.invalidateQueries({
-                  queryKey: ['github']
-                })
+              console.log('[GitHub Integration] New installation status:', newInstallationStatus)
 
-                // Refresh repositories data
-                try {
-                  await refetchRepositories()
-                } catch (error) {
-                  // Ignore refetch errors as the main installation was successful
-                  console.log('Repository refetch after installation:', error)
+              if (newInstallationStatus?.isInstalled) {
+                if (newInstallationStatus.requiresOAuth) {
+                  console.log('[GitHub Integration] GitHub App installed, OAuth required for personal account')
+                  toast.success('GitHub App 安装成功！正在进行仓库访问授权...')
+
+                  // For personal accounts, show message that OAuth is required
+                  console.log('[GitHub Integration] GitHub App installed, OAuth required for personal account')
+                  toast.success('GitHub App 安装成功！个人账户需要点击"需要仓库访问权限"按钮进行额外授权。')
+                } else {
+                  console.log('[GitHub Integration] Installation successful!')
+                  toast.success(m['dashboard.integrations.github.messages.installation_success']())
+
+                  // Invalidate all GitHub-related queries to refresh data
+                  await queryClient.invalidateQueries({
+                    queryKey: ['github']
+                  })
+
+                  // Refresh repositories data
+                  try {
+                    await refetchRepositories()
+                  } catch (error) {
+                    // Ignore refetch errors as the main installation was successful
+                    console.log('Repository refetch after installation:', error)
+                  }
                 }
               } else {
                 console.log('[GitHub Integration] Installation not detected')

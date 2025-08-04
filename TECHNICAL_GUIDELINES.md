@@ -725,7 +725,7 @@ type SubscriptionLimit = typeof subscriptionLimit.$inferSelect
 #### API Layer
 
 - **tRPC 11.4.3**: End-to-end type-safe API
-- **Zod 3.25.76**: Runtime data validation and type inference
+- **Zod 4.0.14**: Runtime data validation and type inference
 - **Hono 4.8.10**: Lightweight web framework (CDN/dispatcher services)
 
 #### Database

@@ -170,7 +170,7 @@ const getNavSecondaryItems = () => [
   },
   {
     title: m['dashboard.sidebar.navigation.github'](),
-    url: 'https://github.com/saasfly/libra',
+    url: 'https://github.com/nextify-limited/libra',
     icon: Github,
   },
   {
@@ -180,7 +180,7 @@ const getNavSecondaryItems = () => [
   },
   {
     title: m['dashboard.sidebar.navigation.help'](),
-    url: '/dashboard/help',
+    url: 'https://forum.libra.dev/c/9-category/9',
     icon: HelpCircleIcon,
   },
 ]

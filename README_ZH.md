@@ -169,7 +169,7 @@ libra/
 │   ├── builder/             # Vite 构建服务 - 代码编译与部署
 │   ├── cdn/                 # Hono CDN 服务 - 静态资源管理
 │   ├── deploy/              # 部署服务 V2 - Cloudflare Queues
-│   ├── deploy-workflow/     # 部署服务 V1 - Cloudflare Workflows
+│   ├── deploy-workflow/     # 部署服务 V1 - Cloudflare Workflows（已弃用）
 │   ├── dispatcher/          # 请求路由分发器 (Workers for Platforms)
 │   ├── docs/                # 技术文档站点 (Next.js + FumaDocs)
 │   ├── email/               # 邮件服务预览器 (React Email)
@@ -225,7 +225,7 @@ libra/
 - 死信队列处理失败部署
 - 综合错误处理与重试逻辑
 
-**⚡ 部署服务 V1 (`apps/deploy-workflow`)**
+**⚡ 部署服务 V1 (`apps/deploy-workflow`，已弃用)**
 
 - 基于 Cloudflare Workflows 的部署编排
 - 步骤化部署流程与状态管理
@@ -251,13 +251,13 @@ libra/
 - React Email 组件化邮件开发
 - 多场景邮件模板引擎
 
-**� OpenNext 缓存服务 (`apps/opennext-cache`)**
+**🔄 OpenNext 缓存服务 (`apps/opennext-cache`)**
 
 - Next.js Cloudflare 部署缓存优化
 - OpenNext 框架与 Cloudflare Workers 集成
 - 与主 Web 应用部署的无缝集成
 
-**�📸 截图服务 (`apps/screenshot`)**
+**📸 截图服务 (`apps/screenshot`)**
 
 - 基于 Cloudflare Queues 的截图生成
 - 异步队列处理网页截图请求
@@ -301,7 +301,7 @@ libra/
 |------------------------------------------|------------------------------|--------|
 | [tRPC](https://trpc.io?utm_source=libra.dev)                 | 端到端类型安全 API 开发       | 11.4.3+ |
 | [Hono](https://hono.dev?utm_source=libra.dev)                | 边缘计算 Web 框架       | 4.8.10+ |
-| [Zod](https://zod.dev?utm_source=libra.dev)                  | TypeScript 数据验证库     | 3.25.76 |
+| [Zod](https://zod.dev?utm_source=libra.dev)                  | TypeScript 数据验证库     | 4.0.14 |
 | [Drizzle ORM](https://orm.drizzle.team?utm_source=libra.dev) | 类型安全 TypeScript ORM     | 0.44.4 |
 | [better-auth](https://better-auth.com?utm_source=libra.dev)  | 现代身份认证解决方案        | 1.3.4 |
 
@@ -367,7 +367,7 @@ libra/
 ```bash
 # 系统依赖要求
 git --version   # >= 2.30.0
-node --version  # >= 24.0.0
+node --version  # >= 20.0.0 (推荐 24)
 bun --version   # >= 1.0.0
 ```
 
@@ -379,6 +379,8 @@ bun --version   # >= 1.0.0
 git clone https://github.com/nextify-limited/libra.git
 cd libra
 bun install
+# （可选）仅限 apps/web 生成多语言文件
+cd apps/web && bun run prebuild && cd ../..
 ```
 
 #### 第二步：配置环境变量
@@ -444,7 +446,7 @@ stripe listen --forward-to localhost:3000/api/auth/stripe/webhook
 - **路由服务 (dispatcher)**：<http://localhost:3007>
 - **部署服务 V2 (deploy)**：<http://localhost:3008>
 - **截图服务 (screenshot)**：<http://localhost:3009>
-- **部署服务 V1 (deploy-workflow)**：<http://localhost:3008> （与部署服务 V2 共享端口）
+- **部署服务 V1 (deploy-workflow，已弃用)**：<http://localhost:3008> （与部署服务 V2 共享端口）
 
 ## 🚀 部署方案
 
@@ -506,7 +508,7 @@ Libra 使用 **Workers for Platforms** 技术为用户提供项目部署能力�
     - **死信队列**：处理失败部署的重试机制
     - **适用场景**：高并发、大规模部署需求
 
-   **V1 工作流架构** (`apps/deploy-workflow`)：
+   **V1 工作流架构** (`apps/deploy-workflow`，已弃用)：
     - **Cloudflare Workflows**：步骤化部署编排
     - **状态持久化**：内置状态管理和恢复机制
     - **复杂流程**：支持复杂的部署依赖和条件逻辑
@@ -535,7 +537,7 @@ Libra 使用 **Workers for Platforms** 技术为用户提供项目部署能力�
 | **🔧 开发环境**     | ✅ 零配置即用   | ❌ 需配置沙箱环境     | 云端 IDE 与实时预览    |
 | **📂 GitHub 集成**  | ✅ 一键连接     | ❌ 需配置 OAuth 授权  | 仓库自动创建与同步         |
 | **🌐 部署服务**   | ✅ 内置支持     | ❌ 需配置部署环境     | Cloudflare 原生集成   |
-| **🎨 编辑器**   | ✅ 完整功能     | ❌ 基础功能        | 可视化编辑与预览             |
+| **🎨 编辑器**   | ✅ 完整功能     | ❌ 基础可视化编辑        | 可视化编辑与预览             |
 | **🔒 数据控制**     | 🔒 云端托管     | ✅ 完全私有控制        | 自托管数据完全掌控         |
 | **🛠️ 定制开发**   | ⚠️ 平台限制 | ✅ 无限制定制      | 源码级修改与扩展             |
 | **📞 技术支持**     | ✅ 专业服务     | 🤝 社区支持        | 官方服务 vs 开源社区   |

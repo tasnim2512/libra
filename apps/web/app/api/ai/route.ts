@@ -225,7 +225,7 @@ export async function POST(request: Request) {
       // Validate request data against schema
       const validationResult = aiMessageSchema.safeParse(rawRequestData)
       if (!validationResult.success) {
-        const errorMessage = validationResult.error.errors.map(err => `${err.path.join('.')}: ${err.message}`).join(', ')
+        const errorMessage = validationResult.error.issues.map(err => `${err.path.join('.')}: ${err.message}`).join(', ')
         log.ai('warn', 'AI route request validation failed', {
           operation: 'POST',
           userId: user.id,

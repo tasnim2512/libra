@@ -52,7 +52,7 @@ export const generateModificationMessage = (
     changes.push(`spacing properties (${spacingChanges.join(', ')})`)
   }
 
-  const elementType = selectedElement.elementType || selectedElement['tagName'] || 'element'
+  const elementType = selectedElement.elementType || selectedElement.tagName || 'element'
   const elementLocation = selectedElement.filePath ?
     ` in ${selectedElement.filePath}${selectedElement.lineNumber ? `:${selectedElement.lineNumber}` : ''}` : ''
 
@@ -71,10 +71,13 @@ export const createEnhancedElement = (
   const targetFilename = selectedElement.filePath || selectedElement.fileName ||
                        selectedElement['data-libra-id'] || null
 
+  // Ensure type field is present for API validation
+  const elementType = selectedElement.type || selectedElement.elementType || 'element'
 
   // Create enhanced element data with current properties for AI context
   return {
     ...selectedElement,
+    type: elementType, // Ensure type field is always present
     modifiedProperties: currentProperties,
     isDirectModification: true,
     targetFilename: targetFilename

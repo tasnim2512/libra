@@ -18,14 +18,14 @@
  *
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 /**
  * Turnstile verification request schema
  */
 export const turnstileVerificationSchema = z.object({
   token: z.string().min(1, 'Turnstile token is required'),
-  remoteip: z.string().ip().optional(),
+  remoteip: z.string().regex(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$|^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/, 'Invalid IP address').optional(),
 })
 
 /**

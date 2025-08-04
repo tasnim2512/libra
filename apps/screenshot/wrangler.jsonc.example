@@ -2,7 +2,7 @@
   "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "libra-screenshot",
   "main": "src/index.ts",
-  "compatibility_date": "2025-07-17",
+  "compatibility_date": "2025-08-03",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "binding": "ASSETS",
@@ -75,6 +75,8 @@
      "BETTER_AUTH_SECRET": "{{BETTER_AUTH_SECRET}}",
      "BETTER_GITHUB_CLIENT_ID": "{{BETTER_GITHUB_CLIENT_ID}}",
      "BETTER_GITHUB_CLIENT_SECRET": "{{BETTER_GITHUB_CLIENT_SECRET}}",
+     "GITHUB_OAUTH_CLIENT_ID": "{{GITHUB_OAUTH_CLIENT_ID}}",
+     "GITHUB_OAUTH_CLIENT_SECRET": "{{GITHUB_OAUTH_CLIENT_SECRET}}",
      // Security configuration
      "TURNSTILE_SECRET_KEY": "{{TURNSTILE_SECRET_KEY}}",
      // Payment configuration (optional)

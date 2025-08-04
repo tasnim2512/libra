@@ -18,22 +18,22 @@
  *
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 // Schema for delete file request parameters
 export const deleteParamsSchema = z.object({
   planId: z.string().min(1, 'Plan ID is required').describe('The plan ID associated with the file to delete')
-})
+}).openapi('DeleteParams')
 
 // Schema for successful delete response
 export const deleteResponseSchema = z.object({
   success: z.boolean().describe('Whether the deletion was successful'),
   message: z.string().describe('Success message'),
   fileKey: z.string().optional().describe('The key of the deleted file')
-})
+}).openapi('DeleteResponse')
 
 // Schema for error responses
 export const deleteErrorResponseSchema = z.object({
   error: z.string().describe('Error type'),
   message: z.string().describe('Error message')
-})
+}).openapi('DeleteErrorResponse')

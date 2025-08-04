@@ -97,6 +97,8 @@ function replaceConfigPlaceholders(templatePath: string, outputPath: string): vo
     BETTER_AUTH_SECRET: 'placeholder-auth-secret-32-chars-min',
     BETTER_GITHUB_CLIENT_ID: 'Ov23placeholder',
     BETTER_GITHUB_CLIENT_SECRET: 'placeholder-github-client-secret',
+    GITHUB_OAUTH_CLIENT_ID: 'Ov23oauth_placeholder',
+    GITHUB_OAUTH_CLIENT_SECRET: 'placeholder-oauth-client-secret',
 
     // Database placeholder (for type generation)
     POSTGRES_URL: 'postgresql://user:password@localhost:5432/placeholder_db',

@@ -21,12 +21,11 @@
 import type { TRPCRouterRecord } from '@trpc/server'
 import { protectedProcedure, publicProcedure } from '../trpc'
 
-// just for demo purpose
 export const helloRouter = {
-  pub: publicProcedure.query(({ ctx }) => {
-    return {}
+  pub: publicProcedure.query(() => {
+    return { status: 'ok' }
   }),
-  private: protectedProcedure.query(({ ctx }) => {
-    return {}
+  private: protectedProcedure.query(() => {
+    return { status: 'authenticated' }
   }),
 } satisfies TRPCRouterRecord

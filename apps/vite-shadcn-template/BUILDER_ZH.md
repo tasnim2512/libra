@@ -86,16 +86,16 @@ console.log(execution.stdout)
 
 ### Docker 构建命令
 ```bash
-docker buildx build --platform linux/amd64 -t vite-shadcn-template-libra:1.0.0 -f Dockerfile .
+docker buildx build --platform linux/amd64 -t vite-shadcn-template-libra:1.0.0 -f ./daytona.Dockerfile .
 ```
 
 ### Daytona 快照创建命令
 <!-- ```bash
-daytona snapshot create vite-shadcn-template-libra-debug --dockerfile ./Dockerfile.daytona
+daytona snapshot create vite-shadcn-template-libra-debug --dockerfile ./daytona.Dockerfile
 ``` -->
 
 ### 使用 Daytona snapshot push 命令
-daytona snapshot push vite-shadcn-template-libra:1.0.0 --entrypoint "pnpm run dev --host 0.0.0.0" --name vite-shadcn-template-libra:1.0.0 --cpu 1 --memory 1 --disk 1
+daytona snapshot push vite-shadcn-template-libra:1.0.0 --entrypoint "bun run dev --host 0.0.0.0" --name vite-shadcn-template-libra:1.0.0 --cpu 1 --memory 1 --disk 1
 ```
 # 文件结构
 

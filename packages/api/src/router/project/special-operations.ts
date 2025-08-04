@@ -23,7 +23,7 @@ import { log } from '@libra/common'
 import { project } from '@libra/db/schema/project-schema'
 import { TRPCError } from '@trpc/server'
 import { eq } from 'drizzle-orm'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { projectSchema } from '../../schemas/project-schema'
 import { organizationProcedure } from '../../trpc'
 import {
@@ -35,6 +35,7 @@ import {
 import {
   buildForkHistory,
   createProjectWithHistory,
+  generateRandomProjectName,
 } from '../../utils/project-operations'
 
 /**
@@ -65,7 +66,7 @@ export const specialOperations = {
         userId,
         operation: 'hero-create',
       }, {
-        name: 'My First Project',
+        // name: undefined - let createProjectWithHistory generate a random name
         templateType: '0',
         visibility: 'public',
         initialMessage,
@@ -118,13 +119,26 @@ export const specialOperations = {
           operation: 'fork',
         })
 
+        // Generate a smart fork name that follows the same naming pattern as createProjectWithHistory
+        // If the source project name is too long, use a random name instead of appending "(Fork)"
+        const maxForkNameLength = 30
+        const forkSuffix = ' (Fork)'
+        let forkName: string
+
+        if (sourceProject.name.length + forkSuffix.length <= maxForkNameLength) {
+          forkName = `${sourceProject.name}${forkSuffix}`
+        } else {
+          // Use the same random naming pattern as createProjectWithHistory for consistency
+          forkName = generateRandomProjectName(maxForkNameLength)
+        }
+
         // Create the new forked project using the generic creation function
         const newProject = await createProjectWithHistory(db, {
           orgId,
           userId,
           operation: 'fork',
         }, {
-          name: `${sourceProject.name} (Fork)`,
+          name: forkName,
           templateType: sourceProject.templateType,
           visibility: sourceProject.visibility,
           initialMessage,

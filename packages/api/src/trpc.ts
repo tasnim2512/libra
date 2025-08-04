@@ -20,7 +20,6 @@
 
 import { initAuth } from '@libra/auth/auth-server'
 import { getAuthDb } from '@libra/auth/db'
-import { getDbAsync } from '@libra/db'
 import { requirePremiumMembership } from './utils/membership-validation'
 /**
  * YOU PROBABLY DON'T NEED TO EDIT THIS FILE, UNLESS:
@@ -32,7 +31,7 @@ import { requirePremiumMembership } from './utils/membership-validation'
  */
 import { initTRPC, TRPCError } from '@trpc/server'
 import superjson from 'superjson'
-import { ZodError, z } from 'zod'
+import { ZodError, z } from 'zod/v4'
 
 /**
  * 1. CONTEXT
@@ -50,7 +49,6 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   const auth = await initAuth()
   // Fetch user session
   const session = await auth.api.getSession({ headers: opts.headers })
-  // English log for debugging async DB connection
   // Obtain database connection using async Cloudflare context
   const db = await getAuthDb()
   return { db, session, ...opts }
@@ -70,7 +68,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       ...shape,
       data: {
         ...shape.data,
-        zodError: error.cause instanceof ZodError ? error.cause.flatten() : null,
+        zodError: error.cause instanceof ZodError ? z.treeifyError(error.cause) : null,
       },
     }
   },

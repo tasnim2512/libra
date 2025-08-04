@@ -41,13 +41,7 @@ export const UpgradeButton = ({ className, onUpgrade }: UpgradeButtonProps) => {
     if (onUpgrade) {
       onUpgrade()
     } else {
-      // Default behavior: navigate to pricing page or user profile
-      if (session?.user) {
-        const username = (session.user as any)?.username || session.user.id
-        router.push(`/@${username}`)
-      } else {
-        router.push('/#price')
-      }
+      router.push('/#price')
     }
   }
 

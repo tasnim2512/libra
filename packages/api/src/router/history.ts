@@ -21,7 +21,7 @@
 import { tryCatch } from '@libra/common'
 import { project } from '@libra/db/schema/project-schema'
 import { eq } from 'drizzle-orm'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import type { ContentType, HistoryType, MessageType } from '../schemas/history'
 import { createTRPCRouter, organizationProcedure } from '../trpc'
 import { prepareContainer } from '../utils/container'

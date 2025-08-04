@@ -18,7 +18,14 @@
  *
  */
 
-import { z } from "zod";
+import { z } from "zod/v4";
+
+// Type definitions (placed before schemas for v4 compatibility)
+export type FileEntry = z.infer<typeof fileEntrySchema>;
+export type DirectoryEntry = z.infer<typeof directoryEntrySchema>;
+export type FileOrDirEntry = z.infer<typeof fileOrDirEntrySchema>;
+export type FileStructure = z.infer<typeof fileStructureSchema>;
+export type GetFileContentInput = z.infer<typeof getFileContentSchema>;
 
 // File entry schema
 export const fileEntrySchema = z.object({
@@ -46,10 +53,3 @@ export const fileStructureSchema = z.record(z.string(), fileOrDirEntrySchema);
 export const getFileContentSchema = z.object({
   path: z.string().min(1, "File path cannot be empty"),
 });
-
-// Export type definitions
-export type FileEntry = z.infer<typeof fileEntrySchema>;
-export type DirectoryEntry = z.infer<typeof directoryEntrySchema>;
-export type FileOrDirEntry = z.infer<typeof fileOrDirEntrySchema>;
-export type FileStructure = z.infer<typeof fileStructureSchema>;
-export type GetFileContentInput = z.infer<typeof getFileContentSchema>; 

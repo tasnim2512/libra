@@ -70,7 +70,7 @@ export function UsageCard({
                 'text-lg font-semibold',
                 isInsufficient ? 'text-destructive' : 'text-foreground'
               )}>
-                {remaining.toLocaleString()}
+                {used.toLocaleString()}
               </span>
               <span className="text-sm text-muted-foreground">
                 / {total.toLocaleString()}

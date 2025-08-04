@@ -1,5 +1,6 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.1.1/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "root": true,
   "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "files": {
     "ignoreUnknown": true,
@@ -20,14 +21,21 @@
       "!**/.android/**",
       "!**/.DS_Store/**",
       "!**/Thumbs.db/**",
-      "!**/.next*",
+      "!**/.next/**",
       "!**/useCanvasCursor.ts",
       "!**/privacy/**",
       "!**/.cache/**",
       "!**/tsbuildinfo.json",
       "!idea",
       "!cloudflare-env.d.ts",
-      "!**/paraglide/**"
+      "!**/paraglide/**",
+      "!**/public/**",
+      "!**/next-env.d.ts",
+      "!**/payload-types.ts",
+      "!**/app/(payload)/**",
+      "!**/public/inspect.js",
+      "!**/public/inspect.src.js",
+      "!worker-configuration.d.ts"
     ]
   },
   "linter": {

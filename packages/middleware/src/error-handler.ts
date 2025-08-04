@@ -19,7 +19,7 @@
  */
 
 import { HTTPException } from 'hono/http-exception'
-import { ZodError } from 'zod'
+import { ZodError } from 'zod/v4'
 import type { BaseContext, ErrorResponse, ErrorHandlerFunction } from './types'
 
 /**

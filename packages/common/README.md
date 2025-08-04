@@ -203,7 +203,7 @@ if (isFileType(data)) {
 }
 
 if (isDirectoryType(data)) {
-  console.log('Directory children:', Object.keys(data.children))
+
 }
 ```
 

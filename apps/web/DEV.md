@@ -388,9 +388,13 @@ cp .env.example .env.local
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_AUTH_URL=http://localhost:3000
 
-# GitHub OAuth
+# GitHub OAuth (for better-auth social login)
 BETTER_GITHUB_CLIENT_ID=your_github_client_id
 BETTER_GITHUB_CLIENT_SECRET=your_github_client_secret
+
+# GitHub OAuth App (for repository access)
+GITHUB_OAUTH_CLIENT_ID=your_github_oauth_client_id
+GITHUB_OAUTH_CLIENT_SECRET=your_github_oauth_client_secret
 
 # AI providers
 ANTHROPIC_API_KEY=your_anthropic_key

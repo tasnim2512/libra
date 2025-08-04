@@ -20,7 +20,7 @@
 
 'use client'
 
-import type { HistoryType, PlanMessageType, ThinkingMessageType, TimingMessageType } from '@libra/common'
+import type { HistoryType, MessageType, PlanMessageType, ThinkingMessageType, TimingMessageType } from '@libra/common'
 import { tryCatch } from '@libra/common'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { useCallback, useRef } from 'react'
@@ -32,8 +32,9 @@ import type { DetailedLoadingStatus, StreamResponseType } from '../types'
  */
 type UpdateHistoryMutation = UseMutationResult<
   { success: boolean; historyLength: number },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any,
-  { id: string; messages?: any },
+  { id: string; messages: MessageType | MessageType[] },
   unknown
 >
 

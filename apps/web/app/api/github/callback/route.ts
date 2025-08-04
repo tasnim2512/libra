@@ -106,11 +106,13 @@ export async function GET(request: NextRequest) {
 
     const [oauthResult, oauthError] = await tryCatch(async () => {
       // Exchange authorization code for access token
-      const GITHUB_APP_CLIENT_ID = process.env['GITHUB_APP_CLIENT_ID']
-      const GITHUB_APP_CLIENT_SECRET = process.env['GITHUB_APP_CLIENT_SECRET']
+      // Use GITHUB_OAUTH_CLIENT_ID for personal user OAuth (OAuth App)
+      // This endpoint only handles OAuth App flow, not GitHub App
+      const GITHUB_CLIENT_ID = process.env.GITHUB_OAUTH_CLIENT_ID
+      const GITHUB_CLIENT_SECRET = process.env.GITHUB_OAUTH_CLIENT_SECRET
 
-      if (!GITHUB_APP_CLIENT_ID || !GITHUB_APP_CLIENT_SECRET) {
-        throw new Error('GitHub App OAuth credentials not configured')
+      if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
+        throw new Error('GitHub OAuth App credentials not configured. Please set GITHUB_OAUTH_CLIENT_ID and GITHUB_OAUTH_CLIENT_SECRET.')
       }
 
       const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
@@ -120,14 +122,15 @@ export async function GET(request: NextRequest) {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: new URLSearchParams({
-          client_id: GITHUB_APP_CLIENT_ID,
-          client_secret: GITHUB_APP_CLIENT_SECRET,
+          client_id: GITHUB_CLIENT_ID,
+          client_secret: GITHUB_CLIENT_SECRET,
           code: code,
         }),
       })
 
       if (!tokenResponse.ok) {
-        throw new Error(`GitHub OAuth token exchange failed: ${tokenResponse.status}`)
+        const errorText = await tokenResponse.text()
+        throw new Error(`GitHub OAuth token exchange failed: ${tokenResponse.status} - ${errorText}`)
       }
 
       const tokenData = (await tokenResponse.json()) as GitHubTokenResponse
@@ -143,13 +146,15 @@ export async function GET(request: NextRequest) {
       // Get user info from GitHub to identify the user
       const userResponse = await fetch('https://api.github.com/user', {
         headers: {
-          Authorization: `Bearer ${tokenData.access_token}`,
+          Authorization: `token ${tokenData.access_token}`,
           Accept: 'application/vnd.github.v3+json',
+          'User-Agent': 'Libra-Platform/1.0',
         },
       })
 
       if (!userResponse.ok) {
-        throw new Error(`Failed to get user info from GitHub: ${userResponse.status}`)
+        const errorText = await userResponse.text()
+        throw new Error(`Failed to get user info from GitHub: ${userResponse.status} - ${errorText}`)
       }
 
       const githubUser = (await userResponse.json()) as GitHubUser
@@ -157,9 +162,12 @@ export async function GET(request: NextRequest) {
       // Store the user access token in database
       const db = await getAuthDb()
 
-      // Check if user token already exists for this organization
+      // Check if user token already exists for this organization and GitHub user
       const existingToken = await db.query.githubUserToken.findFirst({
-        where: eq(githubUserToken.organizationId, orgId as string),
+        where: (table, { eq, and }) => and(
+          eq(table.organizationId, orgId as string),
+          eq(table.githubUserId, githubUser.id)
+        ),
       })
 
       const tokenExpiresAt = tokenData.expires_in

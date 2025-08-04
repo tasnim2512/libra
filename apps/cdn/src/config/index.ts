@@ -8,7 +8,7 @@ const envSchema = z.object({
     // Core environment
     ENVIRONMENT: z.enum(['development', 'staging', 'production']).default('development'),
     LOG_LEVEL: z.string().transform((val) => val.toLowerCase()).pipe(z.enum(['debug', 'info', 'warn', 'error'])).default('info'),
-    POSTGRES_URL: z.string().url('Invalid database URL'),
+    POSTGRES_URL: z.url({ error: 'Invalid database URL' }),
 
     // OAuth providers
     BETTER_GITHUB_CLIENT_ID: z.string().optional(),

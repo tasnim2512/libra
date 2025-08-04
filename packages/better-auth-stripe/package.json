@@ -14,7 +14,6 @@
     "build": "tsup",
     "clean": "rm -rf dist .turbo node_modules",
     "test": "vitest",
-    "typecheck": "tsc --noEmit",
     "update": "bun update"
   },
   "exports": {

@@ -73,7 +73,7 @@ export default function Navigation({
                                        ],
                                        logo = <Logo/>,
                                        logoTitle,
-                                       logoDescription = "Landing page template built with React, Shadcn/ui and Tailwind that you can copy/paste into your project.",
+                                       logoDescription = m["nav.logo_description"](),
 
                                    }: NavigationProps) {
     const [isHydrated, setIsHydrated] = useState(false);
@@ -82,17 +82,17 @@ export default function Navigation({
     // Prevent hydration mismatch by using default English labels until hydrated
     const defaultMenuItems: MenuItem[] = [
         {
-            title: "Features",
+            title: m["nav.features"](),
             isLink: true,
             href: "#features",
         },
         {
-            title: "Price",
+            title: m["nav.price"](),
             isLink: true,
             href: "#price",
         },
         {
-            title: "Documentation",
+            title: m["nav.documentation"](),
             isLink: true,
             href: siteConfig.url,
         },

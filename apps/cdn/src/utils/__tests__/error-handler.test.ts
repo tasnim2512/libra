@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { HTTPException } from 'hono/http-exception'
-import { ZodError } from 'zod'
+import { ZodError, z } from 'zod/v4'
 import {
   CDNError,
   ErrorCodes,
@@ -90,15 +90,15 @@ describe('Error Handler', () => {
     })
 
     it('should handle ZodError correctly', async () => {
-      const error = new ZodError([
-        {
-          code: 'invalid_type',
-          expected: 'string',
-          received: 'number',
-          path: ['field'],
-          message: 'Expected string, received number',
-        },
-      ])
+      // Create a ZodError by parsing invalid data
+      const schema = z.object({ field: z.string() })
+      let error: ZodError
+      try {
+        schema.parse({ field: 123 })
+        throw new Error('Should have thrown ZodError')
+      } catch (e) {
+        error = e as ZodError
+      }
       
       await handler(error, mockContext)
       

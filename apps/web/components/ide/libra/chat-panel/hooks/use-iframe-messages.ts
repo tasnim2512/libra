@@ -379,7 +379,9 @@ export const useIframeMessages = ({
             textContent: data.payload.textContent || '',
             className: data.payload.className || '',
             // Use element type or content to display element name
-            name: data.payload.elementType || data.payload.textContent?.substring(0, 20) || 'Unnamed element'
+            name: data.payload.elementType || data.payload.textContent?.substring(0, 20) || 'Unnamed element',
+            // Ensure type field is present for API validation
+            type: data.payload.elementType || 'element'
           };
 
           addSelectedItem(newItem);
@@ -395,7 +397,9 @@ export const useIframeMessages = ({
             elementType: data.payload.elementType || '',
             textContent: data.payload.textContent || '',
             className: data.payload.className || '',
-            name: data.payload.elementType || data.payload.textContent?.substring(0, 20) || 'Unnamed element'
+            name: data.payload.elementType || data.payload.textContent?.substring(0, 20) || 'Unnamed element',
+            // Ensure type field is present for API validation
+            type: data.payload.elementType || 'element'
           };
 
           // Start editing the double-clicked element

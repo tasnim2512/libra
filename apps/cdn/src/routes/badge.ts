@@ -19,7 +19,7 @@
  */
 
 import { createRoute } from '@hono/zod-openapi'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import type { AppContext } from '../types'
 
 // Define the badge route with OpenAPI specification
@@ -34,7 +34,7 @@ export const badgeRoute = createRoute({
       description: 'Badge script returned successfully',
       content: {
         'application/javascript': {
-          schema: z.string().describe('JavaScript code for the badge')
+          schema: z.string().describe('JavaScript code for the badge').openapi('BadgeScript')
         }
       }
     }

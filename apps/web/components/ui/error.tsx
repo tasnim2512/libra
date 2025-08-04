@@ -25,6 +25,7 @@ import { ErrorIndicator } from './error-indicator'
 import Frame from './frame'
 import { cn } from '@libra/ui/lib/utils'
 import { ErrorBoundary as ReactErrorBoundary } from 'react-error-boundary'
+import { usePostHog } from 'posthog-js/react'
 
 export default function ErrorBoundary({
   error,
@@ -35,18 +36,21 @@ export default function ErrorBoundary({
   description?: string
   className?: string
 }) {
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const posthog = usePostHog()
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: PostHog instance is stable
   useEffect(() => {
-    // if (Sentry.isInitialized()) {
-    //   Sentry.captureException(error, {
-    //     level: 'fatal',
-    //     tags: {
-    //       component: 'ErrorBoundary',
-    //     },
-    //   })
-    // } else {
-    //   logError('Error boundary caught:', error)
-    // }
+    if (posthog) {
+      posthog.captureException(error, {
+        source: 'error-boundary',
+        component: 'ErrorBoundary',
+        digest: error.digest,
+        description,
+      })
+    } else {
+      // Fallback to console logging if PostHog is not available
+      console.error('Error boundary caught:', error)
+    }
   }, [error])
 
   return (

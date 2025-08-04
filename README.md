@@ -171,7 +171,7 @@ libra/
 │   ├── builder/             # Vite build service - code compilation and deployment
 │   ├── cdn/                 # Hono CDN service - static asset management
 │   ├── deploy/              # Deployment service V2 - Cloudflare Queues
-│   ├── deploy-workflow/     # Deployment service V1 - Cloudflare Workflows
+│   ├── deploy-workflow/     # Deployment service V1 - Cloudflare Workflows (deprecated)
 │   ├── dispatcher/          # Request routing dispatcher (Workers for Platforms)
 │   ├── docs/                # Technical documentation site (Next.js + FumaDocs)
 │   ├── email/               # Email service previewer (React Email)
@@ -227,7 +227,7 @@ libra/
 - Dead letter queue handling for failed deployments
 - Comprehensive error handling and retry logic
 
-**⚡ Deployment Service V1 (`apps/deploy-workflow`)**
+**⚡ Deployment Service V1 (`apps/deploy-workflow`, deprecated)**
 
 - Deployment orchestration based on Cloudflare Workflows
 - Step-by-step deployment process and state management
@@ -303,7 +303,7 @@ libra/
 |---------------------|---------------------|---------|
 | [tRPC](https://trpc.io?utm_source=libra.dev) | End-to-end type-safe API development | 11.4.3+ |
 | [Hono](https://hono.dev?utm_source=libra.dev) | Edge computing web framework | 4.8.10+ |
-| [Zod](https://zod.dev?utm_source=libra.dev) | TypeScript data validation library | 3.25.76 |
+| [Zod](https://zod.dev?utm_source=libra.dev) | TypeScript data validation library | 4.0.14 |
 | [Drizzle ORM](https://orm.drizzle.team?utm_source=libra.dev) | Type-safe TypeScript ORM | 0.44.4 |
 | [better-auth](https://better-auth.com?utm_source=libra.dev) | Modern identity authentication solution | 1.3.4 |
 
@@ -367,7 +367,7 @@ libra/
 ```bash
 # System dependency requirements
 git --version   # >= 2.30.0
-node --version  # >= 24.0.0
+node --version  # >= 20.0.0 (recommend 24)
 bun --version   # >= 1.0.0
 ```
 
@@ -379,6 +379,8 @@ bun --version   # >= 1.0.0
 git clone https://github.com/nextify-limited/libra.git
 cd libra
 bun install
+# (Optional) Generate i18n files for apps/web
+cd apps/web && bun run prebuild && cd ../..
 ```
 
 #### Step 2: Configure Environment Variables
@@ -444,7 +446,7 @@ After setup, you can access various services through the following addresses:
 - **Routing Service (dispatcher)**: <http://localhost:3007>
 - **Deployment Service V2 (deploy)**: <http://localhost:3008>
 - **Screenshot Service (screenshot)**: <http://localhost:3009>
-- **Deployment Service V1 (deploy-workflow)**: <http://localhost:3008> (shares port with Deployment Service V2)
+- **Deployment Service V1 (deploy-workflow, deprecated)**: <http://localhost:3008> (shares port with Deployment Service V2)
 
 ## 🚀 Deployment Options
 
@@ -499,7 +501,7 @@ Libra uses **Workers for Platforms** technology to provide project deployment ca
     - **Dead Letter Queue**: Retry mechanism for handling failed deployments
     - **Use Cases**: High concurrency, large-scale deployment needs
 
-   **V1 Workflow Architecture** (`apps/deploy-workflow`):
+   **V1 Workflow Architecture** (`apps/deploy-workflow`, deprecated):
     - **Cloudflare Workflows**: Step-by-step deployment orchestration
     - **State Persistence**: Built-in state management and recovery mechanism
     - **Complex Processes**: Support for complex deployment dependencies and conditional logic
@@ -528,7 +530,7 @@ Libra uses **Workers for Platforms** technology to provide project deployment ca
 | **🔧 Development Environment** | ✅ Zero configuration | ❌ Requires sandbox environment setup | Cloud IDE and real-time preview |
 | **📂 GitHub Integration** | ✅ One-click connection | ❌ Requires OAuth authorization setup | Repository auto-creation and sync |
 | **🌐 Deployment Service** | ✅ Built-in support | ❌ Requires deployment environment setup | Cloudflare native integration |
-| **🎨 Editor** | ✅ Full features | ❌ Basic features | Visual editing and preview |
+| **🎨 Editor** | ✅ Full features | ❌ Basic visual editing | Visual editing and preview |
 | **🔒 Data Control** | 🔒 Cloud hosted | ✅ Complete private control | Self-hosted data complete control |
 | **🛠️ Custom Development** | ⚠️ Platform limitations | ✅ Unlimited customization | Source-level modification and extension |
 | **📞 Technical Support** | ✅ Professional service | 🤝 Community support | Official service vs open source community |

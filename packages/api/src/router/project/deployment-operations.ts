@@ -19,7 +19,7 @@
  */
 
 import { log } from '@libra/common'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { updateDeploymentStatusSchema } from '../../schemas/project-schema'
 import { organizationProcedure } from '../../trpc'
 import type { WorkflowInstanceStatus } from '../../types/workflow'

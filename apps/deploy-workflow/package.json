@@ -16,11 +16,11 @@
     "@libra/sandbox": "*",
     "@libra/templates": "*",
     "@libra/typescript-config": "*",
-    "hono": "^4.8.10",
+    "hono": "^4.8.12",
     "@scalar/hono-api-reference": "^0.9.13",
     "@hono/zod-openapi": "^0.19.10"
   },
   "devDependencies": {
-    "wrangler": "^4.26.1"
+    "wrangler": "^4.27.0"
   }
 }

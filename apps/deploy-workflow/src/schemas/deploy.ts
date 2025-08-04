@@ -18,7 +18,7 @@
  *
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 /**
  * Schema for deployment request body
@@ -30,7 +30,7 @@ export const deploymentRequestSchema = z.object({
   userId: z.string().min(1, 'User ID is required'),
   initFiles: z.any().optional(),
   historyMessages: z.any().optional()
-})
+}).openapi('DeploymentRequest')
 
 /**
  * Schema for deployment response
@@ -41,14 +41,14 @@ export const deploymentResponseSchema = z.object({
   details: z.any().optional(),
   error: z.string().optional(),
   message: z.string().optional()
-})
+}).openapi('DeploymentResponse')
 
 /**
  * Schema for deployment status query parameters
  */
 export const deploymentStatusQuerySchema = z.object({
   instanceId: z.string().min(1, 'Instance ID is required')
-})
+}).openapi('DeploymentStatusQuery')
 
 /**
  * Schema for deployment status response
@@ -56,7 +56,7 @@ export const deploymentStatusQuerySchema = z.object({
 export const deploymentStatusResponseSchema = z.object({
   status: z.any(),
   error: z.string().optional()
-})
+}).openapi('DeploymentStatusResponse')
 
 /**
  * Schema for health check response
@@ -66,7 +66,7 @@ export const healthResponseSchema = z.object({
   timestamp: z.string(),
   service: z.string().optional(),
   version: z.string().optional()
-})
+}).openapi('HealthResponse')
 
 /**
  * Schema for service info response
@@ -77,7 +77,7 @@ export const serviceInfoResponseSchema = z.object({
   timestamp: z.string(),
   service: z.string().optional(),
   version: z.string().optional()
-})
+}).openapi('ServiceInfoResponse')
 
 /**
  * Schema for error responses
@@ -89,14 +89,14 @@ export const errorResponseSchema = z.object({
   details: z.string().optional(),
   requestId: z.string().optional(),
   timestamp: z.string().optional()
-})
+}).openapi('ErrorResponse')
 
 /**
  * Schema for workflow instance query parameters
  */
 export const workflowInstanceQuerySchema = z.object({
   instanceId: z.string().optional()
-})
+}).openapi('WorkflowInstanceQuery')
 
 // Type exports for use in handlers
 export type DeploymentRequest = z.infer<typeof deploymentRequestSchema>

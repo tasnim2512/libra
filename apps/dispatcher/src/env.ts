@@ -18,7 +18,7 @@
  *
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { tryCatch } from '@libra/common'
 
 // Simplified environment validation for dispatcher

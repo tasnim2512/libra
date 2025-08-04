@@ -499,7 +499,7 @@ const azure = env.AZURE_RESOURCE_NAME && env.AZURE_API_KEY
   ? createAzure({
       resourceName: env.AZURE_RESOURCE_NAME,
       apiKey: env.AZURE_API_KEY,
-      apiVersion: '2025-04-01-preview',
+      apiVersion: '2024-06-01-preview',
       ...(env.AZURE_BASE_URL && {
         baseURL: `${env.AZURE_BASE_URL}${env.CLOUDFLARE_ACCOUNT_ID}/${env.CLOUDFLARE_AIGATEWAY_NAME}/azure-openai/${env.AZURE_RESOURCE_NAME}`
       })

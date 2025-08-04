@@ -241,62 +241,71 @@ jobs:
 
       - name: Deploy to Cloudflare Workers
         id: deploy
-        env:
-          # Environment
-          ENVIRONMENT: production
-
-          # Cloudflare API credentials
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          CLOUDFLARE_AIGATEWAY_NAME: ${{ secrets.CLOUDFLARE_AIGATEWAY_NAME || 'azure-ai' }}
-
-          # Cloudflare resources
-          DATABASE_ID: ${{ secrets.DATABASE_ID }}
-          KV_NAMESPACE_ID: ${{ secrets.KV_NAMESPACE_ID }}
-          HYPERDRIVE_ID: ${{ secrets.HYPERDRIVE_ID }}
-
-          # Application URLs
-          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL || 'https://libra.dev' }}
-          NEXT_PUBLIC_CDN_URL: https://cdn.libra.dev
-
-          # Database
-          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
-          DATABASE_URL: ${{ secrets.POSTGRES_URL }}
-
-          # Authentication
-          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          SESSION_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_GITHUB_CLIENT_ID: ${{ secrets.BETTER_GITHUB_CLIENT_ID }}
-          BETTER_GITHUB_CLIENT_SECRET: ${{ secrets.BETTER_GITHUB_CLIENT_SECRET }}
-
-          # Security
-          TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
-
-          # Payment (optional)
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-
-          # Admin (optional)
-          ADMIN_USER_IDS: ${{ secrets.ADMIN_USER_IDS }}
-
-          # API Keys
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          RESEND_FROM: ${{ secrets.RESEND_FROM }}
-
-          # Sandbox providers
-          E2B_API_KEY: ${{ secrets.E2B_API_KEY }}
-          DAYTONA_API_KEY: ${{ secrets.DAYTONA_API_KEY }}
-          SANDBOX_DEFAULT_PROVIDER: ${{ secrets.SANDBOX_DEFAULT_PROVIDER || 'e2b' }}
-          SANDBOX_BUILDER_DEFAULT_PROVIDER: ${{ secrets.SANDBOX_BUILDER_DEFAULT_PROVIDER || 'e2b' }}
-
-          # Logging and monitoring
-          LOG_LEVEL: ${{ secrets.LOG_LEVEL || 'info' }}
-
-          # Version info
-          DEPLOY_VERSION: ${{ steps.version.outputs.version }}
         run: |
           cd apps/screenshot
+
+          # Set environment variables securely (hidden from logs)
+          echo "Setting up environment variables..."
+
+          # Suppress Wrangler verbose logging to prevent secret exposure
+          export WRANGLER_LOG=error
+
+          # Environment
+          export ENVIRONMENT="production"
+
+          # Cloudflare API credentials
+          export CLOUDFLARE_API_TOKEN="${{ secrets.CLOUDFLARE_API_TOKEN }}"
+          export CLOUDFLARE_ACCOUNT_ID="${{ secrets.CLOUDFLARE_ACCOUNT_ID }}"
+          export CLOUDFLARE_ZONE_ID="${{ secrets.CLOUDFLARE_ZONE_ID }}"
+          export CLOUDFLARE_AIGATEWAY_NAME="${{ secrets.CLOUDFLARE_AIGATEWAY_NAME || 'azure-ai' }}"
+
+          # Cloudflare resources
+          export DATABASE_ID="${{ secrets.DATABASE_ID }}"
+          export KV_NAMESPACE_ID="${{ secrets.KV_NAMESPACE_ID }}"
+          export HYPERDRIVE_ID="${{ secrets.HYPERDRIVE_ID }}"
+
+          # Application URLs
+          export NEXT_PUBLIC_APP_URL="${{ secrets.NEXT_PUBLIC_APP_URL || 'https://libra.dev' }}"
+          export NEXT_PUBLIC_CDN_URL="https://cdn.libra.dev"
+
+          # Database
+          export POSTGRES_URL="${{ secrets.POSTGRES_URL }}"
+          export DATABASE_URL="${{ secrets.POSTGRES_URL }}"
+
+          # Authentication
+          export BETTER_AUTH_SECRET="${{ secrets.BETTER_AUTH_SECRET }}"
+          export SESSION_SECRET="${{ secrets.BETTER_AUTH_SECRET }}"
+          export BETTER_GITHUB_CLIENT_ID="${{ secrets.BETTER_GITHUB_CLIENT_ID }}"
+          export BETTER_GITHUB_CLIENT_SECRET="${{ secrets.BETTER_GITHUB_CLIENT_SECRET }}"
+
+          # Security
+          export TURNSTILE_SECRET_KEY="${{ secrets.TURNSTILE_SECRET_KEY }}"
+
+          # Payment (optional)
+          export STRIPE_SECRET_KEY="${{ secrets.STRIPE_SECRET_KEY }}"
+          export STRIPE_WEBHOOK_SECRET="${{ secrets.STRIPE_WEBHOOK_SECRET }}"
+
+          # Admin (optional)
+          export ADMIN_USER_IDS="${{ secrets.ADMIN_USER_IDS }}"
+
+          # API Keys
+          export RESEND_API_KEY="${{ secrets.RESEND_API_KEY }}"
+          export RESEND_FROM="${{ secrets.RESEND_FROM }}"
+
+          # Sandbox providers
+          export E2B_API_KEY="${{ secrets.E2B_API_KEY }}"
+          export DAYTONA_API_KEY="${{ secrets.DAYTONA_API_KEY }}"
+          export SANDBOX_DEFAULT_PROVIDER="${{ secrets.SANDBOX_DEFAULT_PROVIDER || 'e2b' }}"
+          export SANDBOX_BUILDER_DEFAULT_PROVIDER="${{ secrets.SANDBOX_BUILDER_DEFAULT_PROVIDER || 'e2b' }}"
+
+          # Logging and monitoring
+          export LOG_LEVEL="${{ secrets.LOG_LEVEL || 'info' }}"
+
+          # Version info
+          export DEPLOY_VERSION="${{ steps.version.outputs.version }}"
+
+          echo "Environment variables configured successfully"
+
           # Generate final wrangler.jsonc with real environment variables for deployment
           bun ../../scripts/config-processor.ts wrangler.jsonc.example wrangler.jsonc
 

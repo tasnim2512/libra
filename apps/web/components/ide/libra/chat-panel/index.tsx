@@ -246,14 +246,7 @@ export default function ChatPanel({
     }
 
     try {
-      // Log - ensure attachment data is complete here
-      console.log('[ChatPanel] Starting to send message to AI:', {
-        content: content,
-        hasActualFileDetails: !!actualFileDetails,
-        actualFileDetails: actualFileDetails,
-        selectedItemsCount: selectedItems.length,
-        fileDetailsSource: uploadedFileDetails ? 'state' : 'parameter',
-      })
+
 
       // Ensure message is not displayed in iframe
       // (removed unused setShowMessageInIframe call)

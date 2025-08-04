@@ -113,7 +113,7 @@ export default function EmailForm({
       toast.dismiss('github-auth')
 
       // Show error toast with enhanced error handling
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage = error instanceof Error ? error.message : m["auth.email_form.unknown_error"]()
 
       if (errorMessage.includes('popup') || errorMessage.includes('blocked')) {
         toast.error(m["auth.email_form.github_popup_blocked"](), {
@@ -288,7 +288,7 @@ export default function EmailForm({
                 />
               </svg>
               <div className='flex-1'>
-                <div className='font-medium mb-1'>Authentication Error</div>
+                <div className='font-medium mb-1'>{m["auth.email_form.authentication_error"]()}</div>
                 <div className='text-xs opacity-90'>{errorMessage}</div>
                 {errorMessage.includes('GitHub') && (
                   <button
@@ -296,7 +296,7 @@ export default function EmailForm({
                     onClick={handleEnhancedGitHubLogin}
                     className='mt-2 text-xs underline hover:no-underline focus:outline-none focus:ring-1 focus:ring-destructive/50 rounded px-1'
                     disabled={isGitHubLoading || githubState !== 'idle'}
-                    aria-label="Retry GitHub authentication"
+                    aria-label={m["auth.email_form.retry_github_auth"]()}
                   >
                     {m["auth.email_form.retry"]()} GitHub Login
                   </button>

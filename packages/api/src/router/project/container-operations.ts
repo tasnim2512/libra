@@ -20,7 +20,7 @@
 
 import { log, tryCatch } from '@libra/common'
 import { TRPCError } from '@trpc/server'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { organizationProcedure } from '../../trpc'
 import { prepareContainer } from '../../utils/container'
 import { handleAsyncScreenshotViaService } from '../../utils/screenshot-client'

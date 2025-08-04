@@ -23,7 +23,7 @@ import { log } from '@libra/common'
 import { project, projectAsset } from '@libra/db/schema/project-schema'
 import { TRPCError } from '@trpc/server'
 import { desc, eq } from 'drizzle-orm'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import {
   projectSchema,
   updateProjectConfigSchema,

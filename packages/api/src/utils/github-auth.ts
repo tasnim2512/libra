@@ -61,13 +61,15 @@ export async function refreshGitHubUserToken(
     })
   }
 
-  const GITHUB_APP_CLIENT_ID = process.env['GITHUB_APP_CLIENT_ID']
-  const GITHUB_APP_CLIENT_SECRET = process.env['GITHUB_APP_CLIENT_SECRET']
+  // Use GITHUB_OAUTH_CLIENT_ID for personal user OAuth (OAuth App)
+  // This function only handles OAuth App token refresh, not GitHub App
+  const GITHUB_CLIENT_ID = process.env['GITHUB_OAUTH_CLIENT_ID']
+  const GITHUB_CLIENT_SECRET = process.env['GITHUB_OAUTH_CLIENT_SECRET']
 
-  if (!GITHUB_APP_CLIENT_ID || !GITHUB_APP_CLIENT_SECRET) {
+  if (!GITHUB_CLIENT_ID || !GITHUB_CLIENT_SECRET) {
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
-      message: 'GitHub App OAuth credentials not configured',
+      message: 'GitHub OAuth credentials not configured',
     })
   }
 
@@ -79,8 +81,8 @@ export async function refreshGitHubUserToken(
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        client_id: GITHUB_APP_CLIENT_ID,
-        client_secret: GITHUB_APP_CLIENT_SECRET,
+        client_id: GITHUB_CLIENT_ID,
+        client_secret: GITHUB_CLIENT_SECRET,
         grant_type: 'refresh_token',
         refresh_token: userToken.refreshToken,
       }),
@@ -129,7 +131,6 @@ export async function refreshGitHubUserToken(
       refreshTokenExpiresAt: newRefreshTokenExpiresAt,
     }
   } catch (error) {
-    console.error('[GitHub Auth] Error refreshing user token:', error)
     if (error instanceof TRPCError) {
       throw error
     }
@@ -172,8 +173,7 @@ export async function generateInstallationToken(installationId: number): Promise
     )
 
     return data.token
-  } catch (error) {
-    console.error('[GitHub Auth] Error generating installation token:', error)
+  } catch {
     throw new TRPCError({
       code: 'INTERNAL_SERVER_ERROR',
       message: 'Failed to generate GitHub installation token',
@@ -274,7 +274,6 @@ export async function getGitHubAuthToken(
       throw error
     }
 
-    console.error('[GitHub Auth] Error getting auth token:', error)
     if (error instanceof TRPCError) {
       throw error
     }

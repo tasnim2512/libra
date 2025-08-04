@@ -30,13 +30,13 @@ import type { TRPCRouterRecord } from '@trpc/server'
 import { and, eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { organizationProcedure, protectedProcedure, publicProcedure } from '../trpc'
 import { DEFAULT_FREE_LIMITS, getURL, mapToPlans } from '../utils/stripe-utils'
 
 // Initialize Stripe client
 const stripe = new Stripe(env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-06-30.basil',
+  apiVersion: '2025-07-30.basil',
   httpClient: Stripe.createFetchHttpClient(),
 })
 
@@ -219,6 +219,7 @@ export const stripeRouter = {
         data: { url: portalSession.url },
       }
     } catch (err) {
+      console.log(err)
       throw new Error('Unable to create billing portal session')
     }
   }),

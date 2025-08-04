@@ -141,7 +141,7 @@ export const Platinum = ({ locale = 'en' }: PlatinumProps = {}) => {
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                             {locale === 'zh' ? '有兴趣成为白金级赞助商？' : 'Interested in becoming a Platinum sponsor?'}
                             <a
-                                href="https://github.com/sponsors/saasfly"
+                                href="https://github.com/sponsors/nextify-limited"
                                 className="text-yellow-600 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 font-semibold ml-1 inline-flex items-center group transition-colors duration-200"
                             >
                                 {locale === 'zh' ? '联系我们了解更多' : 'Contact us to learn more'}

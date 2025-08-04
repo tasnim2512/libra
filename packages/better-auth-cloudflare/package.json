@@ -37,7 +37,7 @@
     "@libra/typescript-config": "*"
   },
   "peerDependencies": {
-    "@cloudflare/workers-types": "^4.20250730.0",
-    "@opennextjs/cloudflare": "^1.6.2"
+    "@cloudflare/workers-types": "^4.20250803.0",
+    "@opennextjs/cloudflare": "^1.6.3"
   }
 }

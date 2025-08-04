@@ -13,11 +13,12 @@
     "playground": "演练场",
     "start_coding": "开始编码",
     "brand": "Libra AI",
-    "toggleNavigation": "切换导航菜单"
+    "toggleNavigation": "切换导航菜单",
+    "logo_description": "使用 React、Shadcn/ui 和 Tailwind 构建的着陆页模板，您可以复制/粘贴到您的项目中。"
   },
   "hero": {
     "badge": "基于开发者喜爱的工具",
-    "title": "创意秒变应用",
+    "title": "从灵感到应用，只需",
     "subtitle": "使用AI让您的应用想法变为现实，并将其部署到您的域名上。",
     "cta_primary": "免费开始",
     "cta_secondary": "在 GitHub 上查看",
@@ -70,7 +71,8 @@
     "projectCreate": {
       "success": "项目 {name} 创建成功！",
       "limitExceeded": "创建项目失败，可能已超过限制"
-    }
+    },
+    "title_minutes": "短短几分钟"
   },
   "features": {
     "title": "开发者喜爱的强大功能",
@@ -421,6 +423,7 @@
           "description": "本月AI聊天和生成使用量",
           "paidDescription": "付费计划AI聊天和生成使用量",
           "freeDescription": "免费计划AI聊天和生成使用量",
+          "hybridDescription": "AI消息配额 (付费 {paid} + 免费 {free})",
           "used": "已使用",
           "remaining": "剩余",
           "total": "总计",
@@ -440,6 +443,7 @@
           "description": "当前创建的项目总数",
           "paidDescription": "付费计划下创建的项目总数",
           "freeDescription": "免费计划下创建的项目总数",
+          "hybridDescription": "项目配额 (付费 {paid} + 免费 {free})",
           "used": "已使用",
           "remaining": "剩余",
           "total": "总计",
@@ -457,6 +461,11 @@
         "viewPlans": "查看所有计划",
         "resourcesRunningOut": "某些资源即将用尽，升级计划以获得更多额度",
         "button": "升级"
+      },
+      "manage": {
+        "title": "管理计划",
+        "button": "管理计划",
+        "processing": "处理中..."
       },
       "loadError": {
         "title": "加载失败",
@@ -894,6 +903,9 @@
       "github_cancelled": "认证已取消，您可以随时重试。",
       "retry": "重试",
       "help_popup_blocked": "启用弹窗：点击浏览器地址栏中的弹窗阻止图标，选择始终允许弹窗。",
+      "unknown_error": "未知错误",
+      "authentication_error": "身份验证错误",
+      "retry_github_auth": "重试 GitHub 身份验证",
       "or_continue": "或继续使用",
       "email_label": "邮箱",
       "email_placeholder": "nextify@libra.dev",
@@ -925,6 +937,15 @@
     }
   },
   "ui": {
+    "typewriter": {
+      "text1": "带有问题和答案的测验页面",
+      "text2": "博客文章详情页面布局",
+      "text3": "带有侧边栏的仪表板",
+      "text4": "类似 platform.openai.com 的界面....",
+      "text5": "按钮",
+      "text6": "追踪非标准分段睡眠周期的应用",
+      "text7": "展示用户成就的透明卡片"
+    },
     "error": {
       "title": "错误",
       "description": "出现了问题！",

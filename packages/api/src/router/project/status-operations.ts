@@ -21,7 +21,7 @@
 import { getCombinedProjectQuota } from '@libra/auth/utils/subscription-limits'
 import { log, tryCatch } from '@libra/common'
 import { TRPCError } from '@trpc/server'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { organizationProcedure } from '../../trpc'
 import {
   ensureOrgAccess,

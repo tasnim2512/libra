@@ -53,7 +53,7 @@ export default async function Layout({
     links: [
       {
         type: 'icon',
-        url: 'https://github.com/saasfly/libra',
+        url: 'https://github.com/nextify-limited/libra',
         text: 'GitHub',
         icon: (
           <svg role='img' viewBox='0 0 24 24' fill='currentColor'>

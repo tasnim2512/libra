@@ -25,7 +25,7 @@ import { checkAndUpdateEnhanceUsage } from '@libra/auth/utils/subscription-limit
 import { log, tryCatch } from '@libra/common'
 import { TRPCError } from '@trpc/server'
 import { customProvider, generateText } from 'ai'
-import { z } from 'zod'
+import { z } from 'zod/v4'
 import { createTRPCRouter, organizationProcedure, protectedProcedure } from '../trpc'
 
 // Environment variables access - we'll need to handle this properly
@@ -52,11 +52,12 @@ const azure = env.AZURE_RESOURCE_NAME && env.AZURE_API_KEY
   ? createAzure({
       resourceName: env.AZURE_RESOURCE_NAME,
       apiKey: env.AZURE_API_KEY,
-      apiVersion: '2025-04-01-preview',
+      apiVersion: 'preview',
       ...(env.AZURE_BASE_URL && {
         baseURL: (() => {
           const baseUrl = env.AZURE_BASE_URL.endsWith('/') ? env.AZURE_BASE_URL : `${env.AZURE_BASE_URL}/`
-          return `${baseUrl}${env.CLOUDFLARE_ACCOUNT_ID}/${env.CLOUDFLARE_AIGATEWAY_NAME}/azure-openai/${env.AZURE_RESOURCE_NAME}`
+          // AI SDK v5 expects baseURL without /v1 suffix, it will add /v1{path} automatically
+          return `${baseUrl}${env.CLOUDFLARE_ACCOUNT_ID}/${env.CLOUDFLARE_AIGATEWAY_NAME}/azure-openai/${env.AZURE_RESOURCE_NAME}/openai`
         })()
       })
     })
@@ -132,8 +133,8 @@ export const aiRouter = createTRPCRouter({
         log.ai('info', 'AI text generation completed successfully', {
           ...context,
           model: selectedModel,
-          inputTokens: result.usage?.promptTokens || 0,
-          outputTokens: result.usage?.completionTokens || 0,
+          inputTokens: result.usage?.inputTokens || 0,
+          outputTokens: result.usage?.outputTokens || 0,
           totalTokens: result.usage?.totalTokens || 0,
           finishReason: result.finishReason,
           responseLength: result.text.length,

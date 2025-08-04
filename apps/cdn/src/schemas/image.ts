@@ -18,24 +18,24 @@
  *
  */
 
-import { z } from 'zod'
+import { z } from 'zod/v4'
 
 // Image request parameters schema
 export const imageParamsSchema = z.object({
   key: z.string().describe('The image key to retrieve')
-})
+}).openapi('ImageParams')
 
 // Image response headers schema
 export const imageResponseHeadersSchema = z.object({
   'Content-Type': z.string().describe('MIME type of the image'),
   'Cache-Control': z.string().describe('Cache control header')
-})
+}).openapi('ImageResponseHeaders')
 
 // Not found response schema
 export const notFoundResponseSchema = z.object({
   error: z.literal('Not Found').describe('Error type'),
   message: z.string().describe('Error message')
-})
+}).openapi('NotFoundResponse')
 
 // Image route types
 export type ImageParams = z.infer<typeof imageParamsSchema>

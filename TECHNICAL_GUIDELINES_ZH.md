@@ -986,8 +986,8 @@ import superjson from 'superjson'
 
 import type { AppRouter } from '@libra/api'
 
-// 实际实现使用 createTRPCContext
-export const { useTRPC, TRPCProvider } = createTRPCContext<AppRouter>()
+// 创建 tRPC React 客户端
+export const api = createTRPCReact<AppRouter>()
 
 export function TRPCReactProvider(props: { children: React.ReactNode }) {
   const [queryClient] = useState(() =>
@@ -1013,8 +1013,8 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
             process.env.NODE_ENV === 'development' ||
             (op.direction === 'down' && op.result instanceof Error),
         }),
-        httpBatchStreamLink({
-          transformer: SuperJSON,
+        httpBatchLink({
+          transformer: superjson,
           url: `${getBaseUrl()}/api/trpc`,
           headers() {
             const headers = new Map<string, string>()
@@ -1186,7 +1186,7 @@ export function ProjectList() {
 #### 接口层
 
 - **tRPC 11.4.3**：端到端类型安全 API
-- **Zod 3.25.76**：运行时数据验证和类型推导
+- **Zod 4.0.14**：运行时数据验证和类型推导
 - **Hono 4.8.10**：轻量级 Web 框架（CDN/dispatcher 服务）
 
 #### 数据库

@@ -42,7 +42,7 @@ type AzureConfig = {
 const azureConfig: AzureConfig = {
   resourceName: env.AZURE_RESOURCE_NAME || '',
   apiKey: env.AZURE_API_KEY || '',
-  apiVersion: '2025-04-01-preview',
+  apiVersion: 'preview',
 }
 
 /**
@@ -55,8 +55,9 @@ if (env.AZURE_BASE_URL) {
   const gatewayName = env.CLOUDFLARE_AIGATEWAY_NAME
   const resourceName = env.AZURE_RESOURCE_NAME
 
-  // Construct the complete baseURL, ensuring correct path separators
-  azureConfig.baseURL = `${baseUrl}${accountId}/${gatewayName}/azure-openai/${resourceName}`
+  // Construct the complete baseURL for AI SDK v5, ensuring correct path separators
+  // AI SDK v5 expects baseURL without /v1 suffix, it will add /v1{path} automatically
+  azureConfig.baseURL = `${baseUrl}${accountId}/${gatewayName}/azure-openai/${resourceName}/openai`
 } else {
 }
 
@@ -81,7 +82,6 @@ const openrouterProvider = createOpenRouter(openrouterConfig)
 const databricksClaude = createOpenAI({
   baseURL: env.DATABRICKS_BASE_URL,
   apiKey: env.DATABRICKS_TOKEN,
-  compatibility: 'compatible',
 })
 
 /**

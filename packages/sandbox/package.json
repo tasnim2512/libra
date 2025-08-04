@@ -23,12 +23,12 @@
   },
   "dependencies": {
     "e2b": "1.2.0-beta.5",
-    "@daytonaio/sdk": "^0.25.0",
+    "@daytonaio/sdk": "^0.25.4",
     "@libra/common": "*"
   },
   "devDependencies": {
     "@libra/typescript-config": "*",
     "tsup": "^8.5.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   }
 }

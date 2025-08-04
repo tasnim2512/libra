@@ -1,6 +1,6 @@
 import { log } from '@libra/common'
 import { HTTPException } from 'hono/http-exception'
-import { ZodError } from 'zod'
+import { ZodError } from 'zod/v4'
 import { getConfig, isProduction } from '../config'
 import type { AppContext } from '../types'
 
