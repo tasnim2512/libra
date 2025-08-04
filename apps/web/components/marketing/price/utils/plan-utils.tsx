@@ -84,10 +84,7 @@ export function transformApiPlanToPlan(
   }
 }
 
-export function createEnterprisePlan(
-  isAuthenticated: boolean,
-  handleUpgradeSubscription: (planName: string, seats: number) => Promise<void>
-): Plan {
+export function createEnterprisePlan(): Plan {
   return {
     id: 'enterprise',
     name: 'Enterprise',
@@ -96,14 +93,10 @@ export function createEnterprisePlan(
     monthlyPrice: 0,
     yearlyPrice: 0,
     seats: -1,
-    cta: isAuthenticated ? {
+    cta: {
       variant: 'glow' as const,
       label: 'Contact Us',
-      onClick: () => handleUpgradeSubscription('Enterprise', -1)
-    } : {
-      variant: 'glow' as const,
-      label: 'Contact Us',
-      href: '/login'
+      href: 'mailto:contact@libra.dev'
     },
     features: [
       'All Premium features',

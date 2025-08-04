@@ -61,9 +61,7 @@ export function PricingContent({ title, description, yearlyDiscount, propPlans, 
         )
       : propPlans || []
 
-  const enterprisePlan = createEnterprisePlan(isAuthenticated, (planName, seats) =>
-    handleUpgradeSubscription(planName, seats, isYearly)
-  )
+  const enterprisePlan = createEnterprisePlan()
 
   return (
     <>
