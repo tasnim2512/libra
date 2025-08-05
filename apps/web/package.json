@@ -1,6 +1,6 @@
 {
   "name": "libra-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -26,8 +26,8 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.0",
-    "@ai-sdk/azure": "^2.0.0",
-    "@ai-sdk/xai": "^2.0.0",
+    "@ai-sdk/azure": "^2.0.2",
+    "@ai-sdk/xai": "^2.0.1",
     "@git-diff-view/file": "^0.0.30",
     "@git-diff-view/react": "^0.0.30",
     "@hookform/resolvers": "^5.2.1",
@@ -45,13 +45,13 @@
     "@lottiefiles/dotlottie-react": "^0.13.5",
     "@marsidev/react-turnstile": "^1.2.0",
     "@openrouter/ai-sdk-provider": "^1.0.0-beta.6",
-    "@shikijs/transformers": "^3.9.1",
+    "@shikijs/transformers": "^3.9.2",
     "@tanstack/react-query": "^5.84.1",
     "@tanstack/react-table": "^8.21.3",
     "@tsparticles/engine": "^3.9.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
-    "ai": "^5.0.0",
+    "ai": "^5.0.2",
     "date-fns": "^4.1.0",
     "diff": "^8.0.2",
     "fast-xml-parser": "^5.2.5",
@@ -69,7 +69,7 @@
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^3.0.4",
     "remark-gfm": "^4.0.1",
-    "shiki": "^3.9.1",
+    "shiki": "^3.9.2",
     "superjson": "^2.2.2",
     "zustand": "^5.0.7"
   },
