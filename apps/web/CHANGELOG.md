@@ -1,5 +1,16 @@
 # libra-core
 
+## 1.0.1
+
+### Patch Changes
+
+- deps update
+- Updated dependencies
+  - @libra/better-auth-cloudflare@1.0.1
+  - @libra/shikicode@1.0.1
+  - @libra/common@1.0.1
+  - @libra/email@1.0.1
+
 ## 1.0.0
 
 ### Major Changes
