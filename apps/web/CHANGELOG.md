@@ -1,5 +1,11 @@
 # libra-core
 
+## 1.0.2
+
+### Patch Changes
+
+- upgrade Next.js to 15.4.5
+
 ## 1.0.1
 
 ### Patch Changes
