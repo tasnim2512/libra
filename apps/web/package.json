@@ -1,6 +1,6 @@
 {
   "name": "libra-core",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "private": true,
   "type": "module",
   "scripts": {
@@ -51,7 +51,7 @@
     "@tsparticles/engine": "^3.9.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
-    "ai": "^5.0.8",
+    "ai": "^5.0.9",
     "date-fns": "^4.1.0",
     "diff": "^8.0.2",
     "fast-xml-parser": "^5.2.5",
