@@ -186,7 +186,7 @@ export function PricingColumn({
         <p className='text-muted-foreground min-h-[40px] max-w-[220px] text-sm'>
           {monthlyPrice === 0
             ? m['pricing.forever_free']()
-            : `${isYearly ? m['pricing.yearly']() : m['pricing.monthly']()} (${isYearly ? `$${yearlyPrice}/year` : `¥${monthlyPrice}/month`})`}
+            : `${isYearly ? m['pricing.yearly']() : m['pricing.monthly']()} (${isYearly ? `$${yearlyPrice}/year` : `$${monthlyPrice}/month`})`}
         </p>
         <hr className='border-input' />
       </div>
