@@ -65,8 +65,10 @@ export interface UsageData {
  */
 export function isQuotaExceeded(usageData: UsageData | null | undefined): boolean {
   if (!usageData) {
+    console.log("111111111111111111111111111111111111111111");
     return false // If no data, assume quota is not exceeded
   }
+console.log("222222222222222222222222222222222222222222222");
 
   // Check if AI quota is exhausted
   // aiNums represents remaining quota, so if it's 0 or less, quota is exceeded

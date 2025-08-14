@@ -47,15 +47,23 @@ export const specialOperations = {
     const { initialMessage, attachment, planId } = input
 
     // Check and deduct project quota
-    const quotaDeducted = await checkAndUpdateProjectUsage(orgId)
-    if (!quotaDeducted) {
-      log.project('warn', 'Hero project creation failed - quota exceeded', {
-        orgId,
-        userId,
-        operation: 'hero-create',
-      })
-      throw new TRPCError({ code: 'FORBIDDEN', message: 'Project quota exceeded' })
-    }
+    // TODO: Uncomment for production - commenting out for local development
+    // const quotaDeducted = await checkAndUpdateProjectUsage(orgId)
+    // if (!quotaDeducted) {
+    //   log.project('warn', 'Hero project creation failed - quota exceeded', {
+    //     orgId,
+    //     userId,
+    //     operation: 'hero-create',
+    //   })
+    //   throw new TRPCError({ code: 'FORBIDDEN', message: 'Project quota exceeded' })
+    // }
+
+    // LOCAL DEVELOPMENT: Skip quota check - allow unlimited projects
+    log.project('info', 'LOCAL DEV: Skipping quota check for hero project creation', {
+      orgId,
+      userId,
+      operation: 'hero-create',
+    })
 
     // Note: AI message deduction now occurs when sending the actual AI request
     // No longer deducting in advance here to avoid incorrect charges when creating projects
@@ -96,16 +104,25 @@ export const specialOperations = {
       })
 
       // Check and deduct project quota
-      const quotaDeducted = await checkAndUpdateProjectUsage(orgId)
-      if (!quotaDeducted) {
-        log.project('warn', 'Project fork failed - quota exceeded', {
-          orgId,
-          userId,
-          sourceProjectId: projectId,
-          operation: 'fork',
-        })
-        throw new TRPCError({ code: 'FORBIDDEN', message: 'Project quota exceeded' })
-      }
+      // TODO: Uncomment for production - commenting out for local development
+      // const quotaDeducted = await checkAndUpdateProjectUsage(orgId)
+      // if (!quotaDeducted) {
+      //   log.project('warn', 'Project fork failed - quota exceeded', {
+      //     orgId,
+      //     userId,
+      //     sourceProjectId: projectId,
+      //     operation: 'fork',
+      //   })
+      //   throw new TRPCError({ code: 'FORBIDDEN', message: 'Project quota exceeded' })
+      // }
+
+      // LOCAL DEVELOPMENT: Skip quota check - allow unlimited project forking
+      log.project('info', 'LOCAL DEV: Skipping quota check for project fork', {
+        orgId,
+        userId,
+        sourceProjectId: projectId,
+        operation: 'fork',
+      })
 
       return await withDbCleanup(async (db) => {
         // Fetch the source project

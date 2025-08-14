@@ -18,9 +18,9 @@
  *
  */
 
-// Import AI provider - we need to create a way to access myProvider from the API package
-// For now, we'll create a simple provider configuration here
 import { createAzure } from '@ai-sdk/azure'
+import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+import { anthropic } from '@ai-sdk/anthropic'
 import { checkAndUpdateEnhanceUsage } from '@libra/auth/utils/subscription-limits'
 import { log, tryCatch } from '@libra/common'
 import { TRPCError } from '@trpc/server'
@@ -28,7 +28,7 @@ import { customProvider, generateText } from 'ai'
 import { z } from 'zod/v4'
 import { createTRPCRouter, organizationProcedure, protectedProcedure } from '../trpc'
 
-// Environment variables access - we'll need to handle this properly
+// Environment variables access
 const env = {
   AZURE_RESOURCE_NAME: process.env['AZURE_RESOURCE_NAME'],
   AZURE_API_KEY: process.env['AZURE_API_KEY'],
@@ -36,39 +36,167 @@ const env = {
   AZURE_BASE_URL: process.env['AZURE_BASE_URL'],
   CLOUDFLARE_ACCOUNT_ID: process.env['CLOUDFLARE_ACCOUNT_ID'],
   CLOUDFLARE_AIGATEWAY_NAME: process.env['CLOUDFLARE_AIGATEWAY_NAME'],
+  OPENROUTER_API_KEY: process.env['OPENROUTER_API_KEY'],
+  ANTHROPIC_API_KEY: process.env['ANTHROPIC_API_KEY'],
   REASONING_ENABLED: process.env['REASONING_ENABLED'] === 'true',
 }
 
-// Azure configuration
-type AzureConfig = {
-  resourceName: string
-  apiKey: string
-  apiVersion: string
-  baseURL?: string
+/**
+ * AI Provider configuration with priority order
+ */
+type AIProviderConfig = {
+  openrouter: {
+    apiKey: string
+    isConfigured: boolean
+  }
+  azure: {
+    resourceName: string
+    apiKey: string
+    apiVersion: string
+    baseURL?: string
+    isConfigured: boolean
+  }
+  anthropic: {
+    apiKey: string
+    isConfigured: boolean
+  }
 }
 
-// Only create Azure provider if required environment variables are set
-const azure = env.AZURE_RESOURCE_NAME && env.AZURE_API_KEY
-  ? createAzure({
-      resourceName: env.AZURE_RESOURCE_NAME,
-      apiKey: env.AZURE_API_KEY,
+/**
+ * Check and configure AI providers based on environment variables
+ */
+const getAIProviderConfig = (): AIProviderConfig => {
+  const config: AIProviderConfig = {
+    openrouter: {
+      apiKey: env.OPENROUTER_API_KEY || '',
+      isConfigured: Boolean(env.OPENROUTER_API_KEY),
+    },
+    azure: {
+      resourceName: env.AZURE_RESOURCE_NAME || '',
+      apiKey: env.AZURE_API_KEY || '',
       apiVersion: 'preview',
-      ...(env.AZURE_BASE_URL && {
-        baseURL: (() => {
-          const baseUrl = env.AZURE_BASE_URL.endsWith('/') ? env.AZURE_BASE_URL : `${env.AZURE_BASE_URL}/`
-          // AI SDK v5 expects baseURL without /v1 suffix, it will add /v1{path} automatically
-          return `${baseUrl}${env.CLOUDFLARE_ACCOUNT_ID}/${env.CLOUDFLARE_AIGATEWAY_NAME}/azure-openai/${env.AZURE_RESOURCE_NAME}/openai`
-        })()
-      })
+      isConfigured: Boolean(env.AZURE_RESOURCE_NAME && env.AZURE_API_KEY),
+    },
+    anthropic: {
+      apiKey: env.ANTHROPIC_API_KEY || '',
+      isConfigured: Boolean(env.ANTHROPIC_API_KEY),
+    },
+  }
+
+  // Configure Azure baseURL if available
+  if (env.AZURE_BASE_URL && config.azure.isConfigured) {
+    const baseUrl = env.AZURE_BASE_URL.endsWith('/') ? env.AZURE_BASE_URL : `${env.AZURE_BASE_URL}/`
+    const accountId = env.CLOUDFLARE_ACCOUNT_ID
+    const gatewayName = env.CLOUDFLARE_AIGATEWAY_NAME
+    const resourceName = env.AZURE_RESOURCE_NAME
+
+    // Construct the complete baseURL for AI SDK v5, ensuring correct path separators
+    // AI SDK v5 expects baseURL without /v1 suffix, it will add /v1{path} automatically
+    config.azure.baseURL = `${baseUrl}${accountId}/${gatewayName}/azure-openai/${resourceName}/openai`
+  }
+
+  return config
+}
+
+/**
+ * Create AI providers based on configuration
+ */
+const createAIProviders = () => {
+  const config = getAIProviderConfig()
+  const providers: any = {}
+
+  // Priority 1: OpenRouter (if configured)
+  if (config.openrouter.isConfigured) {
+    const openrouterConfig = {
+      apiKey: config.openrouter.apiKey,
+      headers: {
+        'HTTP-Referer': 'https://libra.dev',
+        'X-Title': 'Libra AI',
+      },
+    }
+    providers.openrouter = createOpenRouter(openrouterConfig)
+  }
+
+  // Priority 2: Azure (if configured)
+  if (config.azure.isConfigured) {
+    providers.azure = createAzure({
+      resourceName: config.azure.resourceName,
+      apiKey: config.azure.apiKey,
+      apiVersion: config.azure.apiVersion,
+      ...(config.azure.baseURL && { baseURL: config.azure.baseURL }),
     })
-  : null
+  }
+
+  // Priority 3: Anthropic (if configured)
+  if (config.anthropic.isConfigured) {
+    providers.anthropic = anthropic
+  }
+
+  return providers
+}
+
+/**
+ * Create the main AI provider with dynamic model selection
+ */
+const createMainProvider = () => {
+  const providers = createAIProviders()
+  const languageModels: Record<string, any> = {}
+
+  // Add OpenRouter models (highest priority)
+  if (providers.openrouter) {
+    languageModels['chat-model-reasoning-openrouter'] = providers.openrouter('anthropic/claude-3-5-sonnet')
+    languageModels['chat-model-reasoning-google'] = providers.openrouter('google/gemini-2.5-pro-preview')
+    languageModels['chat-model-reasoning-claude'] = providers.openrouter('anthropic/claude-3-5-sonnet')
+  }
+
+  // Add Azure models
+  if (providers.azure) {
+    languageModels['chat-model-reasoning-azure'] = providers.azure(env.AZURE_DEPLOYMENT_NAME || 'o4-mini')
+    languageModels['chat-model-reasoning-azure-mini'] = providers.azure('gpt-4.1-mini')
+    languageModels['chat-model-reasoning-azure-nano'] = providers.azure('gpt-4.1-nano')
+  }
+
+  // Add Anthropic models
+  if (providers.anthropic) {
+    languageModels['chat-model-reasoning-anthropic'] = providers.anthropic('claude-3-5-sonnet')
+  }
+
+  // If no providers are configured, throw an error
+  if (Object.keys(languageModels).length === 0) {
+    throw new Error(
+      'No AI providers configured. Please set at least one of: OPENROUTER_API_KEY, AZURE_API_KEY, or ANTHROPIC_API_KEY'
+    )
+  }
+
+  return customProvider({ languageModels })
+}
+
+/**
+ * Get the best available model based on provider priority
+ */
+const getBestAvailableModel = (): string => {
+  const config = getAIProviderConfig()
+  
+  // Priority 1: OpenRouter
+  if (config.openrouter.isConfigured) {
+    return 'chat-model-reasoning-openrouter'
+  }
+  
+  // Priority 2: Azure
+  if (config.azure.isConfigured) {
+    return 'chat-model-reasoning-azure'
+  }
+  
+  // Priority 3: Anthropic
+  if (config.anthropic.isConfigured) {
+    return 'chat-model-reasoning-anthropic'
+  }
+  
+  throw new Error('No AI providers available')
+}
 
 // Create AI provider
-const myProvider = azure ? customProvider({
-  languageModels: {
-    'chat-model-reasoning-azure': azure('gpt-4.1-mini'),
-  },
-}) : null
+const myProvider = createMainProvider()
 
 export const aiRouter = createTRPCRouter({
   generateText: organizationProcedure
@@ -95,7 +223,7 @@ export const aiRouter = createTRPCRouter({
         if (!myProvider) {
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
-            message: 'AI provider not configured. Please check Azure environment variables.',
+            message: 'AI provider not configured. Please check environment variables.',
           })
         }
 
@@ -110,7 +238,8 @@ export const aiRouter = createTRPCRouter({
           })
         }
 
-        const selectedModel = 'chat-model-reasoning-azure'
+        // Get the best available model
+        const selectedModel = getBestAvailableModel()
 
         log.ai('info', 'Processing AI prompt', {
           ...context,
@@ -165,7 +294,7 @@ export const aiRouter = createTRPCRouter({
           'AI service failure during text generation',
           {
             ...context,
-            model: 'chat-model-reasoning-azure',
+            model: 'dynamic-selection',
             errorType: error instanceof Error ? error.constructor.name : 'Unknown',
           },
           error instanceof Error ? error : new Error(String(error))

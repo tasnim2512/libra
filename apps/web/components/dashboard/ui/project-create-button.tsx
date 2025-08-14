@@ -53,9 +53,12 @@ export function ProjectCreateButton({ onClick }: { onClick: () => void }) {
 
   return (
     <QuotaTooltip
-      message={isQuotaExhausted ? getQuotaMessage() : ''}
+      // message={getQuotaMessage()}
+       message={isQuotaExhausted ? getQuotaMessage() : ''}
       isExhausted={isQuotaExhausted}
+      // disabled={!canCreateProject || isLoading}
       disabled={!isQuotaExhausted}
+      
       side="bottom"
       align="center"
       className="quota-message-container"
@@ -87,4 +90,4 @@ export function ProjectCreateButton({ onClick }: { onClick: () => void }) {
       </Button>
     </QuotaTooltip>
   )
-} 
+}

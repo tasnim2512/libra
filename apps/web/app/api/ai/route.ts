@@ -212,6 +212,73 @@ export async function POST(request: Request) {
       return new Response('Organization ID is required', { status: 400 })
     }
 
+    // ADD DEBUG LOGGING HERE
+    log.ai('info', 'DEBUG: About to check quota before AI generation', {
+      operation: 'POST',
+      userId: user.id,
+      organizationId: orgId,
+    })
+
+    // ADD QUOTA DEBUG CHECK HERE
+    try {
+      const db = await getDbAsync()
+      
+      // Check subscription_limit table
+      const subscriptionLimit = await db.query.subscriptionLimit.findFirst({
+        where: (table, { eq, and }) => 
+          and(
+            eq(table.organizationId, orgId),
+            eq(table.isActive, true)
+          )
+      })
+      
+      log.ai('info', 'DEBUG: Subscription limit found', {
+        subscriptionLimit: subscriptionLimit ? {
+          id: subscriptionLimit.id,
+          planName: subscriptionLimit.planName,
+          planId: subscriptionLimit.planId,
+          aiNums: subscriptionLimit.aiNums,
+          isActive: subscriptionLimit.isActive
+        } : null
+      })
+
+      // Check project_ai_usage table
+      const projectUsage = await db.query.projectAIUsage.findFirst({
+        where: (table, { eq }) => 
+          eq(table.organizationId, orgId)
+      })
+      
+      log.ai('info', 'DEBUG: Project AI usage found', {
+        projectUsage: projectUsage ? {
+          id: projectUsage.id,
+          projectId: projectUsage.projectId,
+          totalAiMessageCount: projectUsage.totalAIMessageCount,
+          lastUsedAt: projectUsage.lastUsedAt
+        } : null
+      })
+
+    } catch (dbError) {
+      log.ai('error', 'DEBUG: Failed to check quota data', {
+        error: dbError instanceof Error ? dbError.message : String(dbError)
+      })
+    }
+
+    // ADD DATABASE CONNECTION DEBUG
+    try {
+      const db = await getDbAsync()
+      log.ai('info', 'DEBUG: Database connection info', {
+        databaseType: db.constructor.name,
+        hasQuery: !!db.query,
+        hasInsert: !!db.insert,
+        hasUpdate: !!db.update,
+        hasDelete: !!db.delete
+      })
+    } catch (dbError) {
+      log.ai('error', 'DEBUG: Failed to get database connection', {
+        error: dbError instanceof Error ? dbError.message : String(dbError)
+      })
+    }
+
     log.ai('info', 'AI route authentication successful', {
       operation: 'POST',
       userId: user.id,
@@ -273,7 +340,7 @@ export async function POST(request: Request) {
           operation: 'POST',
           userId: user.id,
           projectId: requestData.projectId,
-          planId: requestData.planId,
+          planId: planId,
           attachmentKey: attachment.key,
           attachmentName: attachment.name,
           attachmentType: attachment.type,
@@ -302,7 +369,7 @@ export async function POST(request: Request) {
             operation: 'POST',
             userId: user.id,
             projectId: requestData.projectId,
-            planId: requestData.planId,
+            planId: planId,
             attachmentKey: attachment.key,
           })
         } else {
@@ -312,14 +379,14 @@ export async function POST(request: Request) {
             userId: user.id,
             organizationId: orgId,
             projectId: requestData.projectId,
-            planId: requestData.planId,
+            planId: planId,
             attachmentKey: attachment.key,
           })
 
           const saveResult = await saveProjectAsset(
             orgId,
             requestData.projectId,
-            requestData.planId,
+            planId,
             attachment.key
           )
 
@@ -329,7 +396,7 @@ export async function POST(request: Request) {
               userId: user.id,
               organizationId: orgId,
               projectId: requestData.projectId,
-              planId: requestData.planId,
+              planId: planId,
               attachmentKey: attachment.key,
               error: saveResult.error,
             })
@@ -350,26 +417,26 @@ export async function POST(request: Request) {
 
       // Reset deployment status when user submits AI request
       // This allows new deployments after AI modifications
-      try {
-        const db = await getDbAsync()
-        await db.update(project)
-          .set({ deploymentStatus: 'idle' })
-          .where(eq(project.id, requestData.projectId))
+      // try {
+      //   const db = await getDbAsync()
+      //   await db.update(project)
+      //     .set({ deploymentStatus: 'idle' })
+      //     .where(eq(project.id, requestData.projectId))
 
-        log.ai('info', 'Reset deployment status for AI request', {
-          operation: 'POST',
-          projectId: requestData.projectId,
-          userId: user.id,
-          organizationId: orgId,
-        })
-      } catch (dbError) {
-        // Log error but don't fail the AI request
-        log.ai('warn', 'Failed to reset deployment status', {
-          operation: 'POST',
-          projectId: requestData.projectId,
-          error: dbError instanceof Error ? dbError.message : String(dbError),
-        })
-      }
+      //   log.ai('info', 'Reset deployment status for AI request', {
+      //     operation: 'POST',
+      //     projectId: requestData.projectId,
+      //     userId: user.id,
+      //     organizationId: orgId,
+      //   })
+      // } catch (dbError) {
+      //   // Log error but don't fail the AI request
+      //   log.ai('warn', 'Failed to reset deployment status', {
+      //     operation: 'POST',
+      //     projectId: requestData.projectId,
+      //     error: dbError instanceof Error ? dbError.message : String(dbError),
+      //   })
+      // }
 
       // Use optimized file-focused function for direct modifications with target filename
       log.ai('info', 'Starting AI generation', {
@@ -378,6 +445,19 @@ export async function POST(request: Request) {
         organizationId: orgId,
         projectId: requestData.projectId,
         planId: requestData.planId,
+        isDirectModification: isDirectModification,
+        targetFilename: targetFilename,
+        selectedModelId: selectedModelId,
+        hasImageData: !!imageData,
+      })
+
+            // ADD DEBUG BEFORE AI GENERATION
+      log.ai('info', 'DEBUG: About to call AI generation function', {
+        operation: 'POST',
+        userId: user.id,
+        organizationId: orgId,
+        projectId: requestData.projectId,
+        planId: planId,
         isDirectModification: isDirectModification,
         targetFilename: targetFilename,
         selectedModelId: selectedModelId,
@@ -403,6 +483,16 @@ export async function POST(request: Request) {
               selectedModelId // Pass selected model ID
             )
 
+      // ADD DEBUG AFTER AI GENERATION
+      log.ai('info', 'DEBUG: AI generation function completed', {
+        operation: 'POST',
+        userId: user.id,
+        organizationId: orgId,
+        projectId: requestData.projectId,
+        planId: planId,
+        hasGenStream: !!genStream
+      })
+
       // Convert ReadableStream to AsyncIterable
       const asyncIterable = streamToAsyncIterable(genStream)
 
@@ -414,7 +504,7 @@ export async function POST(request: Request) {
         userId: user.id,
         organizationId: orgId,
         projectId: requestData.projectId,
-        planId: requestData.planId,
+        planId: planId,
       })
 
       return new Response(parsedReadable as unknown as BodyInit, {

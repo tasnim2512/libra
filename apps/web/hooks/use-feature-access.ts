@@ -170,6 +170,26 @@ export function useProjectCreationAccess() {
     handleUpgrade,
   } = useMembershipStatus()
 
+  // LOCAL DEVELOPMENT: Bypass quota checking to allow unlimited projects
+  // const isLocalDev = process.env.NODE_ENV === 'development'
+  
+  // if (isLocalDev) {
+  //   return {
+  //     canCreateProject: true, // Always allow project creation in local dev
+  //     isQuotaExhausted: false, // Never show quota exhausted in local dev
+  //     quotaMessage: 'Local Development: Unlimited projects available',
+  //     isLoading: false,
+  //     handleUpgrade: () => {}, // No-op for local dev
+  //     quotaInfo: {
+  //       projectNums: 999, // Show high number for local dev
+  //       projectNumsLimit: 999,
+  //       plan: 'local-dev',
+  //       periodEnd: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year from now
+  //     },
+  //   }
+  // }
+
+  // PRODUCTION: Normal quota checking
   const canCreateProject = membershipStatus
     ? canCreateUnlimitedProjects || membershipStatus.usage.projectNums > 0
     : false

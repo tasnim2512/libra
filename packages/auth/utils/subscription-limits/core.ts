@@ -91,7 +91,7 @@ export async function createOrUpdateSubscriptionLimit(
 
   const db = await getDbAsync()
   const planType = plan as PlanType
-  
+
   // Validate plan type
   if (!Object.values(PLAN_TYPES).includes(planType)) {
     throw new Error(`Invalid plan type: ${plan}`)
@@ -227,6 +227,21 @@ export async function createOrUpdateSubscriptionLimit(
  */
 export async function checkAndUpdateAIMessageUsage(organizationId: string): Promise<boolean> {
   const db = await getDbAsync()
+  log.subscription('info', 'DEBUG: Quota check database details', {
+    organizationId,
+    databaseType: db.constructor.name,
+    currentDatabase: await db.execute(sql`SELECT current_database() as db_name`).then(rows => rows.rows[0]?.db_name).catch(() => 'error'),
+    currentSchema: await db.execute(sql`SELECT current_schema() as schema_name`).then(rows => rows.rows[0]?.schema_name).catch(() => 'error'),
+    // Check if table exists
+    tableExists: await db.execute(sql`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'subscription_limit')`).then(rows => rows.rows[0]?.exists).catch(() => 'error'),
+    // Check if we can find the actual data
+   // Replace the problematic line with this:
+dataExists: await db.query.subscriptionLimit.findMany({
+  where: (table, { eq, and }) => 
+    and(eq(table.organizationId, organizationId), eq(table.isActive, true))
+}).then(rows => rows.length).catch(() => 'error')
+  })
+
   log.subscription('info', 'AI message deduction started', {
     organizationId,
     operation: 'ai_message_deduction'
@@ -631,6 +646,24 @@ export async function getSubscriptionUsage(organizationId: string): Promise<Subs
   return await withDatabaseErrorHandling(async () => {
     const db = await getDbAsync()
 
+    // Replace the existing debug code with this enhanced version:
+    log.subscription('info', 'DEBUG: Database connection detailsx', {
+      databaseType: db.constructor.name,
+      hasQuery: !!db.query,
+      hasInsert: !!db.insert,
+      hasUpdate: !!db.update,
+      hasDelete: !!db.delete,
+      // Access $client directly and explore its properties
+      clientKeys: Object.keys((db as any).$client || {}),
+      clientType: (db as any).$client?.constructor?.name || 'unknown',
+      // Try to get connection details from different possible locations
+      connectionParams: (db as any).$client?.connectionParameters || 'none',
+      config: (db as any).$client?.config || 'none',
+      // Try to execute a simple query to see what database we're actually connected to
+      currentDatabase: await db.execute(sql`SELECT current_database() as db_name`).then(rows => rows.rows[0]?.db_name).catch(() => 'error'),
+      currentSchema: await db.execute(sql`SELECT current_schema() as schema_name`).then(rows => rows.rows[0]?.schema_name).catch(() => 'error')
+    })
+
     try {
       const limits = (await db
         .select()
@@ -646,57 +679,57 @@ export async function getSubscriptionUsage(organizationId: string): Promise<Subs
         return createDefaultUsage()
       }
 
-  const authDb = await getAuthDb()
+      const authDb = await getAuthDb()
 
-  const freeLimit = getLatestActiveLimit(limits, 'free')
-  const paidLimit = getLatestActiveLimit(limits, 'paid')
+      const freeLimit = getLatestActiveLimit(limits, 'free')
+      const paidLimit = getLatestActiveLimit(limits, 'paid')
 
-  const planNamesToQuery = new Set<string>()
-  if (freeLimit) planNamesToQuery.add(PLAN_TYPES.FREE)
-  if (paidLimit) planNamesToQuery.add(paidLimit.planName)
+      const planNamesToQuery = new Set<string>()
+      if (freeLimit) planNamesToQuery.add(PLAN_TYPES.FREE)
+      if (paidLimit) planNamesToQuery.add(paidLimit.planName)
 
-  const planLimitPromises = Array.from(planNamesToQuery).map(async (planName) => {
-    const result = await fetchPlanLimitsWithCache(planName, authDb)
-    return [planName, result] as const
-  })
+      const planLimitPromises = Array.from(planNamesToQuery).map(async (planName) => {
+        const result = await fetchPlanLimitsWithCache(planName, authDb)
+        return [planName, result] as const
+      })
 
-  const planLimitResults = await Promise.all(planLimitPromises)
-  const planLimitMap = new Map(planLimitResults)
+      const planLimitResults = await Promise.all(planLimitPromises)
+      const planLimitMap = new Map(planLimitResults)
 
-  let freeDetails: PlanDetails | null = null
-  if (freeLimit) {
-    const freePlanResult = planLimitMap.get(PLAN_TYPES.FREE)
-    if (!freePlanResult) {
-      throw new Error(`Failed to get plan limits for ${PLAN_TYPES.FREE}`)
-    }
-    freeDetails = createPlanDetails(freeLimit, freePlanResult.limits, freePlanResult.source)
-  }
+      let freeDetails: PlanDetails | null = null
+      if (freeLimit) {
+        const freePlanResult = planLimitMap.get(PLAN_TYPES.FREE)
+        if (!freePlanResult) {
+          throw new Error(`Failed to get plan limits for ${PLAN_TYPES.FREE}`)
+        }
+        freeDetails = createPlanDetails(freeLimit, freePlanResult.limits, freePlanResult.source)
+      }
 
-  let paidDetails: PlanDetails | null = null
-  if (paidLimit) {
-    const paidPlanName = paidLimit.planName
-    const paidPlanResult = planLimitMap.get(paidPlanName)
-    if (!paidPlanResult) {
-      throw new Error(`Failed to get plan limits for ${paidPlanName}`)
-    }
-    paidDetails = createPlanDetails(paidLimit, paidPlanResult.limits, paidPlanResult.source)
-  }
+      let paidDetails: PlanDetails | null = null
+      if (paidLimit) {
+        const paidPlanName = paidLimit.planName
+        const paidPlanResult = planLimitMap.get(paidPlanName)
+        if (!paidPlanResult) {
+          throw new Error(`Failed to get plan limits for ${paidPlanName}`)
+        }
+        paidDetails = createPlanDetails(paidLimit, paidPlanResult.limits, paidPlanResult.source)
+      }
 
-  const primaryLimit = paidLimit || freeLimit
+      const primaryLimit = paidLimit || freeLimit
 
-  if (!primaryLimit) {
-    console.error(
-      `Unexpected: no primary limit found for organization ${organizationId} despite having ${limits.length} active limits`
-    )
-    return createDefaultUsage(freeDetails, paidDetails)
-  }
+      if (!primaryLimit) {
+        console.error(
+          `Unexpected: no primary limit found for organization ${organizationId} despite having ${limits.length} active limits`
+        )
+        return createDefaultUsage(freeDetails, paidDetails)
+      }
 
-  const primaryPlanName = paidLimit ? paidLimit.planName : PLAN_TYPES.FREE
+      const primaryPlanName = paidLimit ? paidLimit.planName : PLAN_TYPES.FREE
 
-  const primaryPlanResult = planLimitMap.get(primaryPlanName)
-  if (!primaryPlanResult) {
-    throw new Error(`Failed to get primary plan limits for ${primaryPlanName}`)
-  }
+      const primaryPlanResult = planLimitMap.get(primaryPlanName)
+      if (!primaryPlanResult) {
+        throw new Error(`Failed to get primary plan limits for ${primaryPlanName}`)
+      }
 
       return {
         aiNums: primaryLimit.aiNums,
@@ -920,9 +953,9 @@ async function attemptPaidPlanProjectDeduction(
         remaining: subscriptionLimit.projectNums,
         planName: subscriptionLimit.planName,
       })) as {
-      remaining: number
-      planName: string
-    }[]
+        remaining: number
+        planName: string
+      }[]
 
     if (paidUpdated.length > 0) {
       const result = paidUpdated[0]
@@ -1101,12 +1134,12 @@ async function handleFreePlanProjectDeduction(
       return false
     })
   })
-  
+
   if (error) {
     console.error(`Error in FREE plan project deduction for ${organizationId}:`, error)
     return false
   }
-  
+
   return result
 }
 
@@ -1136,7 +1169,7 @@ export async function getCombinedProjectQuota(organizationId: string): Promise<{
     // Get subscription usage which includes both FREE and PAID plan details
     return await getSubscriptionUsage(organizationId)
   })
-  
+
   if (error) {
     console.error(
       `[Combined Quota] Failed to get combined quota for organization ${organizationId}:`,
@@ -1144,7 +1177,7 @@ export async function getCombinedProjectQuota(organizationId: string): Promise<{
     )
     throw error
   }
-  
+
   const freeDetails = usage.planDetails.free
   const paidDetails = usage.planDetails.paid
 
@@ -1153,40 +1186,40 @@ export async function getCombinedProjectQuota(organizationId: string): Promise<{
   const combinedProjectNumsLimit =
     (freeDetails?.projectNumsLimit || 0) + (paidDetails?.projectNumsLimit || 0)
 
-    // Determine primary plan for display (paid plan takes precedence)
-    const primaryPlan = paidDetails?.plan || freeDetails?.plan || PLAN_TYPES.FREE
-    const primaryPeriodEnd = paidDetails?.periodEnd || freeDetails?.periodEnd
+  // Determine primary plan for display (paid plan takes precedence)
+  const primaryPlan = paidDetails?.plan || freeDetails?.plan || PLAN_TYPES.FREE
+  const primaryPeriodEnd = paidDetails?.periodEnd || freeDetails?.periodEnd
 
-    console.log(
-      `[Combined Quota] Organization ${organizationId}: Combined quota ${combinedProjectNums}/${combinedProjectNumsLimit} ` +
-        `(FREE: ${freeDetails?.projectNums || 0}/${freeDetails?.projectNumsLimit || 0}, ` +
-        `PAID: ${paidDetails?.projectNums || 0}/${paidDetails?.projectNumsLimit || 0})`
-    )
+  console.log(
+    `[Combined Quota] Organization ${organizationId}: Combined quota ${combinedProjectNums}/${combinedProjectNumsLimit} ` +
+    `(FREE: ${freeDetails?.projectNums || 0}/${freeDetails?.projectNumsLimit || 0}, ` +
+    `PAID: ${paidDetails?.projectNums || 0}/${paidDetails?.projectNumsLimit || 0})`
+  )
 
-    return {
-      projectNums: combinedProjectNums,
-      projectNumsLimit: combinedProjectNumsLimit,
-      plan: primaryPlan,
-      ...(primaryPeriodEnd ? { periodEnd: primaryPeriodEnd } : {}),
-      planDetails: {
-        free: freeDetails
-          ? {
-              projectNums: freeDetails.projectNums,
-              projectNumsLimit: freeDetails.projectNumsLimit,
-              plan: freeDetails.plan,
-              periodEnd: freeDetails.periodEnd,
-            }
-          : null,
-        paid: paidDetails
-          ? {
-              projectNums: paidDetails.projectNums,
-              projectNumsLimit: paidDetails.projectNumsLimit,
-              plan: paidDetails.plan,
-              periodEnd: paidDetails.periodEnd,
-            }
-          : null,
-      },
-    }
+  return {
+    projectNums: combinedProjectNums,
+    projectNumsLimit: combinedProjectNumsLimit,
+    plan: primaryPlan,
+    ...(primaryPeriodEnd ? { periodEnd: primaryPeriodEnd } : {}),
+    planDetails: {
+      free: freeDetails
+        ? {
+          projectNums: freeDetails.projectNums,
+          projectNumsLimit: freeDetails.projectNumsLimit,
+          plan: freeDetails.plan,
+          periodEnd: freeDetails.periodEnd,
+        }
+        : null,
+      paid: paidDetails
+        ? {
+          projectNums: paidDetails.projectNums,
+          projectNumsLimit: paidDetails.projectNumsLimit,
+          plan: paidDetails.plan,
+          periodEnd: paidDetails.periodEnd,
+        }
+        : null,
+    },
+  }
 }
 
 /**
@@ -1320,10 +1353,10 @@ export async function restoreProjectQuotaOnDeletion(organizationId: string): Pro
       if (!paidLimits) {
         const error = `No active PAID plan found for organization: ${organizationId}`
         log.subscription('error', 'Quota restoration error', {
-      organizationId,
-      operation: 'restore_project_quota',
-      error: error
-    });
+          organizationId,
+          operation: 'restore_project_quota',
+          error: error
+        });
         return { success: false, error }
       }
 
@@ -1372,30 +1405,30 @@ export async function restoreProjectQuotaOnDeletion(organizationId: string): Pro
       } else {
         const error = `PAID plan restoration would exceed limit: ${newProjectNums}/${planLimits.projectNums} for organization: ${organizationId}`
         log.subscription('error', 'Quota restoration error', {
-      organizationId,
-      operation: 'restore_project_quota',
-      error: error
-    });
+          organizationId,
+          operation: 'restore_project_quota',
+          error: error
+        });
         return { success: false, error }
       }
 
       // If we reach here, restoration failed for unknown reasons
       const error = `Quota restoration failed for unknown reasons for organization: ${organizationId}`
       log.subscription('error', 'Quota restoration error', {
-      organizationId,
-      operation: 'restore_project_quota',
-      error: error
-    });
+        organizationId,
+        operation: 'restore_project_quota',
+        error: error
+      });
       return { success: false, error }
     })
   })
-  
+
   if (error) {
     const errorMessage = `Transaction failed during quota restoration for organization ${organizationId}: ${error instanceof Error ? error.message : 'Unknown error'}`
     console.error(`[Quota Restoration] ${errorMessage}`, error)
     return { success: false, error: errorMessage }
   }
-  
+
   return result
 }
 

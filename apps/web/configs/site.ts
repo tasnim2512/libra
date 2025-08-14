@@ -19,7 +19,7 @@
  */
 
 export const siteConfig = {
-  name: 'Libra AI',
+  name: 'StackGrid',
   url: process.env.NEXT_PUBLIC_APP_URL || 'https://Libra.dev',
   getStartedUrl: 'https://Libra.dev',
   ogImage: 'https://libra.dev/opengraph-image.png',

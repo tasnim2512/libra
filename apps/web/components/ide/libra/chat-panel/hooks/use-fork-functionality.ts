@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 import { useTRPC } from '@/trpc/client'
 import { useProjectContext } from '@/lib/hooks/use-project-id'
 import { useProjectQuota } from '@/components/dashboard/hooks/use-project-quota'
+import { useProjectCreationAccess } from '@/hooks/use-feature-access'
 import * as m from '@/paraglide/messages'
 
 export interface UseForkFunctionalityReturn {
@@ -58,6 +59,7 @@ export function useForkFunctionality(
   const [isForkLoading, setIsForkLoading] = useState(false)
 
   // Project quota management
+  // const { canCreateProject, isQuotaExhausted, quotaInfo, isLoading: isQuotaLoading } = useProjectCreationAccess()
   const { canCreateProject, isQuotaExhausted, quotaInfo, isLoading: isQuotaLoading } = useProjectQuota()
 
   // Fork is available on all AI messages when quota allows and not loading
@@ -72,6 +74,11 @@ export function useForkFunctionality(
   // Generate quota message using internationalization
   const getQuotaMessage = (): string => {
     if (!quotaInfo) return m["dashboard.projectCreateButton.quota.loading"]()
+
+    // LOCAL DEVELOPMENT: Show unlimited message
+    // if (process.env.NODE_ENV === 'development') {
+    //   return 'Local Development: Unlimited projects available'
+    // }
 
     if (isQuotaExhausted) {
       return m["dashboard.projectCreateButton.quota.exhausted"]({

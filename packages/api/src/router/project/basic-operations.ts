@@ -57,15 +57,32 @@ export const basicOperations = {
     const { name, initialMessage, visibility, templateType } = input
 
     // Check and deduct project quota
-    const quotaDeducted = await checkAndUpdateProjectUsage(orgId)
-    if (!quotaDeducted) {
-      log.project('warn', 'Project creation failed - quota exceeded', {
-        orgId,
-        userId,
-        operation: 'create',
-      })
-      throw new TRPCError({ code: 'FORBIDDEN', message: 'Project quota exceeded' })
-    }
+    // TODO: Uncomment for production - commenting out for local development
+    // const quotaDeducted = await checkAndUpdateProjectUsage(orgId)
+    // if (!quotaDeducted) {
+    //   log.project('warn', 'Project creation failed - quota exceeded', {
+    //     orgId,
+    //     userId,
+    //     operation: 'create',
+    //   })
+    //   throw new TRPCError({ code: 'FORBIDDEN', message: 'Project quota exceeded' })
+    // }
+
+    // const quotaDeducted = await checkAndUpdateProjectUsage(orgId)
+    // if (!quotaDeducted) {
+    //   log.project('warn', 'Project creation failed - quota exceeded', {
+    //     orgId,
+    //     userId,
+    //     operation: 'create',
+    //   })
+    //   throw new TRPCError({ code: 'FORBIDDEN', message: 'Project quota exceeded' })
+    // }
+    // LOCAL DEVELOPMENT: Skip quota check - allow unlimited projects
+    log.project('info', 'LOCAL DEV: Skipping quota check for project creation', {
+      orgId,
+      userId,
+      operation: 'create',
+    })
 
     return await withDbCleanup(async (db) => {
       return await createProjectWithHistory(db, {

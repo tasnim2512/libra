@@ -39,8 +39,11 @@ export function useHeroProjectCreate(onSuccess?: () => void) {
         toast.success(m['hero.projectCreate.success']({ name: data.name }))
 
         // Refresh quota status to reflect updated project count
-        await queryClient.invalidateQueries(trpc.project.getQuotaStatus.pathFilter())
-        await queryClient.invalidateQueries(trpc.subscription.getUsage.pathFilter())
+        // LOCAL DEVELOPMENT: Skip quota-related query invalidation
+        // if (process.env.NODE_ENV !== 'development') {
+          await queryClient.invalidateQueries(trpc.project.getQuotaStatus.pathFilter())
+          await queryClient.invalidateQueries(trpc.subscription.getUsage.pathFilter())
+        // }
         await queryClient.invalidateQueries(trpc.project.pathFilter())
 
         router.push(`/project/${data.id}`)

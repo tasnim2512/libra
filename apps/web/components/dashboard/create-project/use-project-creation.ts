@@ -57,6 +57,12 @@ export function useProjectCreation() {
         await queryClient.invalidateQueries(trpc.project.pathFilter())
 
         // Refresh quota status to reflect updated project count
+        // LOCAL DEVELOPMENT: Skip quota-related query invalidation
+        // if (process.env.NODE_ENV !== 'development') {
+        //   await queryClient.invalidateQueries(trpc.project.getQuotaStatus.pathFilter())
+        //   await queryClient.invalidateQueries(trpc.subscription.getUsage.pathFilter())
+        // }
+        
         await queryClient.invalidateQueries(trpc.project.getQuotaStatus.pathFilter())
         await queryClient.invalidateQueries(trpc.subscription.getUsage.pathFilter())
 

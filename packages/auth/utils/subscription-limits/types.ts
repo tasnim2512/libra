@@ -21,7 +21,8 @@
  // Unified plan type constants to avoid magic strings
 export const PLAN_TYPES = {
   FREE: 'libra free',
-  PRO: 'libra pro',
+  // PRO: 'c',
+    PRO: 'libra pro',
   MAX: 'libra max'
 } as const
 
