@@ -1,4 +1,7 @@
 {
+  "buildCommand": "bun run build",
+  "installCommand": "bun install",
+  "outputDirectory": "apps/web/.next",
   "github": {
     "silent": true
   }
